@@ -4,6 +4,7 @@ import es.hack4edu.rag.aplicacion.IndexarFichas;
 import es.hack4edu.rag.aplicacion.PreguntarAlAsistente;
 import es.hack4edu.rag.dominio.Asistencia;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -48,6 +49,7 @@ public class AsistenteResource {
     /** Regenera el índice (tras recargar el CSV o cambiar de modelo de embeddings). */
     @POST
     @Path("/rag/ingesta")
+    @RolesAllowed({"direccion", "administracion"})
     public Map<String, Object> reindexar() {
         return Map.of("fichas", indexador.ingestar(), "modeloEmbeddings", indexador.modeloEmbeddings());
     }

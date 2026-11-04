@@ -21,6 +21,9 @@ services:
       APP_INGESTA_PASSWORD: ${APP_INGESTA_PASSWORD:?define APP_INGESTA_PASSWORD en .env}
       DOCENTE_PASSWORD: ${DOCENTE_PASSWORD:?define DOCENTE_PASSWORD en .env}
       DIRECCION_PASSWORD: ${DIRECCION_PASSWORD:?define DIRECCION_PASSWORD en .env}
+      ADMINISTRACION_PASSWORD: ${ADMINISTRACION_PASSWORD:?define ADMINISTRACION_PASSWORD en .env}
+      # Clave de la cookie de sesión (opcional: sin ella, reiniciar la app cierra las sesiones)
+      SESION_CLAVE: ${SESION_CLAVE:-}
       # Carga el dataset de demostración (y reindexa el asistente) la primera vez, si la base está vacía
       CARGAR_DATOS: ${CARGAR_DATOS:-true}
       OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}

@@ -7,13 +7,23 @@
 <!-- Chart.js desde CDN: la única petición que sale del equipo. Para una demo sin red,
      descargad el fichero a /js/chart.umd.min.js y cambiad esta línea. -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="/css/estilos.css">
+<link rel="icon" href="/img/icono.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/estilos.css?v=2">
 </head>
 <body>
 
 <header>
-  <h1>La escuela que aprende de sus datos</h1>
-  <p class="sub">Indicadores agregados y prioridades de actuación. Ningún dato identifica a un alumno: cada cifra sale de grupos de al menos 10.</p>
+  <div class="cabecera-app">
+    <img src="/img/icono.svg" alt="" width="52" height="52">
+    <div>
+      <h1>La escuela que aprende de sus datos</h1>
+      <p class="sub">Indicadores agregados y prioridades de actuación. Ningún dato identifica a un alumno: cada cifra sale de grupos de al menos 10.</p>
+    </div>
+    <div class="sesion" id="sesion" hidden>
+      <span>Sesión: <strong id="sesionUsuario"></strong> · <span id="sesionRol"></span></span>
+      <button class="boton secundario" id="btnSalir" type="button">Cerrar sesión</button>
+    </div>
+  </div>
   <span class="etiqueta">Demo con datos sintéticos (Kaggle · Student Performance Factors) y centros ficticios</span>
   <nav class="pestanas" role="tablist" aria-label="Secciones">
     <button type="button" role="tab" id="tabPanel" aria-selected="true" aria-controls="vistaPanel">Panel general</button>
@@ -109,7 +119,7 @@
         <div class="cabecera">
           <div>
             <h2 id="tituloImportar">Importar datos del grupo</h2>
-            <p class="nota">CSV con notas y asistencia (y, si los tienes, otros factores). Primero se valida y ves una vista previa: no se guarda nada hasta que confirmes. Se pedirá el usuario de docente.</p>
+            <p class="nota">CSV con notas y asistencia (y, si los tienes, otros factores). Primero se valida y ves una vista previa: no se guarda nada hasta que confirmes.</p>
           </div>
           <a class="enlace" href="/api/ingesta/plantilla" download>Descargar plantilla CSV</a>
         </div>
@@ -202,9 +212,9 @@
 
   <div id="vistaMedidas" role="tabpanel" aria-labelledby="tabMedidas" hidden>
     <div class="rejilla">
-      <section class="panel ancho-12" aria-labelledby="tituloNuevaMedida">
+      <section class="panel ancho-12 solo-escritura" aria-labelledby="tituloNuevaMedida">
         <h2 id="tituloNuevaMedida">Registrar una medida</h2>
-        <p class="nota">Anota qué vais a hacer y qué indicador queréis vigilar. Cuando se importen datos de periodos posteriores, aquí verás cómo evoluciona frente al resto. Se pedirá el usuario de docente o dirección.</p>
+        <p class="nota">Anota qué vais a hacer y qué indicador queréis vigilar. Cuando se importen datos de periodos posteriores, aquí verás cómo evoluciona frente al resto.</p>
         <div class="aviso">No escribas nombres ni datos de alumnos: la medida se describe a nivel de grupo.</div>
         <form id="formMedida" class="formulario" autocomplete="off">
           <label>Ámbito <select id="medAmbito" required></select></label>
@@ -231,6 +241,7 @@
   Todo se ejecuta en este equipo (PostgreSQL + Ollama).
 </footer>
 
+<script src="/js/sesion.js"></script>
 <script src="/js/panel.js"></script>
 <script src="/js/analisis.js"></script>
 <script src="/js/gestion.js"></script>

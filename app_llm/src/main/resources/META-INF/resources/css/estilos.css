@@ -183,3 +183,50 @@
   .lista-medidas { display: grid; gap: 12px; margin-top: 12px; }
 
   footer { max-width: 1200px; margin: 0 auto; padding: 0 24px 40px; font-size: 13px; color: var(--suave); }
+
+  /* Login y sesión */
+  .pagina-login {
+    min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+    background:
+      radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--acento) 18%, transparent), transparent 45%),
+      radial-gradient(circle at 85% 85%, color-mix(in srgb, var(--c2) 14%, transparent), transparent 45%),
+      var(--fondo);
+  }
+  .login { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .login-tarjeta {
+    width: 100%; background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; padding: 36px 30px 30px;
+    box-shadow: 0 2px 4px rgba(20, 25, 40, .04), 0 18px 48px rgba(20, 25, 40, .12);
+    animation: login-entrada .4s ease-out;
+  }
+  .login-marca { text-align: center; margin-bottom: 26px; }
+  .login-logo { display: block; margin: 0 auto 14px; filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--acento) 30%, transparent)); }
+  .login h1 { font-size: 21px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -.01em; text-wrap: balance; }
+  .login .sub { margin: 0; color: var(--suave); font-size: 14px; }
+  .login-caja { display: grid; gap: 16px; margin: 0; }
+  .login-caja label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--suave); }
+  .login-caja input {
+    font: inherit; color: var(--texto); background: var(--fondo); border: 1px solid var(--linea); border-radius: 10px; padding: 11px 13px;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .login-caja input::placeholder { color: color-mix(in srgb, var(--suave) 60%, transparent); }
+  .login-caja input:focus {
+    outline: none; border-color: var(--acento); background: var(--panel);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 22%, transparent);
+  }
+  .login-caja .boton {
+    margin-top: 6px; padding: 12px; font-weight: 600; font-size: 15px; border-radius: 10px;
+    transition: filter .15s, transform .05s;
+  }
+  .login-caja .boton:hover { filter: brightness(1.08); }
+  .login-caja .boton:active { transform: translateY(1px); }
+  .login-caja .caja { margin: 0; }
+  @keyframes login-entrada { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .login-tarjeta { animation: none; } }
+  @media (prefers-color-scheme: dark) { .login-tarjeta { box-shadow: 0 18px 48px rgba(0, 0, 0, .35); } }
+  .cabecera-app { display: flex; align-items: center; gap: 14px; }
+  .cabecera-app img { flex: none; }
+  .sesion { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--suave); white-space: nowrap; }
+  .sesion strong { color: var(--texto); }
+  .sesion .boton { padding: 5px 12px; font-size: 13px; }
+  @media (max-width: 700px) { .cabecera-app { flex-wrap: wrap; } .sesion { margin-left: 0; } }
+  .solo-consulta .solo-escritura { display: none; }

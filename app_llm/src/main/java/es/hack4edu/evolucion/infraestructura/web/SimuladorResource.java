@@ -5,6 +5,7 @@ import es.hack4edu.evolucion.aplicacion.SimularEscenario;
 import es.hack4edu.evolucion.dominio.CatalogoSimulador;
 import es.hack4edu.evolucion.dominio.Simulador;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -18,6 +19,7 @@ import java.util.List;
 @Path("/api/simulador")
 @Produces(MediaType.APPLICATION_JSON)
 @Blocking
+@RolesAllowed("docente")
 public class SimuladorResource {
 
     @Inject

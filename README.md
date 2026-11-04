@@ -18,14 +18,34 @@ Unos 4 GB de disco para los modelos básicos (más ~5,5 GB si descargas el model
 
 Con Docker Desktop y Ollama instalados, haz **doble clic en `Hack4Edu.command`**. El script abre Docker y
 Ollama si están cerrados, crea `.env` con contraseñas aleatorias la primera vez, descarga los modelos que
-falten, arranca el contenedor y abre el navegador. Al terminar muestra los usuarios `docente` y `direccion`
-con sus contraseñas. Para pararlo: doble clic en `Parar Hack4Edu.command`.
+falten, arranca el contenedor y abre el navegador. Al terminar muestra los usuarios `docente`, `direccion`
+y `administracion` con sus contraseñas. Para pararlo: doble clic en `Parar Hack4Edu.command`.
 
 ¿Prefieres un icono para el Dock? Ejecuta una vez `bash scripts/crear_app_macos.sh`: crea `Hack4Edu.app`
 en la carpeta del proyecto (no la muevas de ahí; arrástrala al Dock).
 
 > La primera vez que abras el `.command`, macOS puede bloquearlo por ser de «un desarrollador no
 > identificado»: clic derecho → **Abrir** → **Abrir**. Solo hace falta una vez.
+
+## Arranque con un clic (Linux)
+
+Con Docker y Ollama instalados, ejecuta `bash Hack4Edu-linux.sh` (o haz doble clic si tu gestor de
+archivos lo permite). Hace lo mismo que el script de macOS: crea `.env` con contraseñas aleatorias la
+primera vez, descarga los modelos que falten, arranca el contenedor y abre el navegador. Al terminar
+muestra los usuarios `docente`, `direccion` y `administracion` con sus contraseñas. Para pararlo:
+`bash Parar-Hack4Edu-linux.sh`.
+
+> Si Ollama solo escucha en `127.0.0.1` (ver «Problemas frecuentes» más abajo), ábrelo con
+> `OLLAMA_HOST=0.0.0.0 ollama serve` antes de ejecutar el script.
+
+## Arranque con un clic (Windows)
+
+Con Docker Desktop y Ollama instalados, haz **doble clic en `Hack4Edu-windows.bat`**. Igual que en
+macOS/Linux: crea `.env` con contraseñas aleatorias la primera vez, descarga los modelos que falten,
+arranca el contenedor y abre el navegador. Para pararlo: doble clic en `Parar-Hack4Edu-windows.bat`.
+
+> Windows puede avisar de que el script no tiene firma: en el aviso de SmartScreen, pulsa
+> **Más información** → **Ejecutar de todas formas**. Solo hace falta una vez.
 
 ## Cómo se ejecuta (paso a paso)
 
@@ -61,7 +81,8 @@ docker compose logs -f app       # sigue el arranque (Ctrl+C para salir de los l
 ```
 
 Cuando aparezcan `[hack4edu] Dataset cargado` y `[hack4edu] Asistente indexado`, abre
-**http://localhost:8080**.
+**http://localhost:8080**. Pide iniciar sesión (`/login.html`): usa uno de los tres usuarios
+(`docente`, `direccion`, `administracion`) con la contraseña que le pusiste en `.env`.
 
 La primera vez, si la base está vacía, el contenedor carga el dataset de demostración y reindexa el asistente
 (`CARGAR_DATOS=true`; ponlo a `false` en `.env` para evitarlo). Si Ollama no está disponible en ese momento,
@@ -134,6 +155,7 @@ set -a && source ../.env && set +a               # exporta las contraseñas
 | Ruta | Contenido |
 |---|---|
 | `Dockerfile` · `docker-compose.yml` · `docker/` | Contenedor único (PostgreSQL + aplicación) y su script de arranque |
+| `Hack4Edu.command` · `Hack4Edu-linux.sh` · `Hack4Edu-windows.bat`/`.ps1` (y sus `Parar-*`) | Lanzadores de un clic por sistema: Docker + Ollama, `.env`, modelos y navegador |
 | `app_llm/` | Aplicación Quarkus (API REST, web, asistente con LangChain4j + Ollama) |
 | `app_llm/src/main/java/es/hack4edu/` | Código en **arquitectura hexagonal**, un paquete por módulo: ver [docs/arquitectura.md](docs/arquitectura.md) |
 | `app_llm/src/main/resources/META-INF/resources/` | Interfaz web: `index.html`, `css/` y `js/` |
@@ -238,15 +260,24 @@ indistinguible de cero), lo dice en vez de inventar un resultado.
 
 ### Usuarios y seguridad
 
-| Usuario | Contraseña (`.env`) | Puede |
-|---|---|---|
-| `docente` | `DOCENTE_PASSWORD` | importar CSV y ver sus importaciones |
-| `direccion` | `DIRECCION_PASSWORD` | lo mismo y ver las importaciones de todo el profesorado |
+La web pide iniciar sesión (`/login.html`): la sesión queda en una cookie cifrada, `HttpOnly` y
+`SameSite=Strict` (8 horas). Los scripts y `curl` pueden saltarse el formulario con HTTP Basic
+(`curl -u docente:clave …`).
 
-- La app usa dos conexiones: `app_lector` (dashboard, solo lectura de `analitica`) y `app_ingesta`
-  (solo `INSERT` en `staging.spf_raw` y `EXECUTE` de los procedimientos de ingesta).
-- Límites: 2 MB, 5.000 filas y 60 columnas por archivo. El archivo no se guarda: la vista previa vive en
-  memoria y caduca a los 20 minutos.
+| Usuario | Contraseña (`.env`) | Rol(es) | Puede |
+|---|---|---|---|
+| `docente` | `DOCENTE_PASSWORD` | `docente` | Su grupo: panel, análisis, importar CSV, resumen semanal y medidas |
+| `direccion` | `DIRECCION_PASSWORD` | `docente` + `direccion` | Lo anterior en todo su centro, panel de dirección e historial de importaciones de todo el profesorado |
+| `administracion` | `ADMINISTRACION_PASSWORD` | `administracion` | Conjunto de centros: panel general, panel de dirección y medidas — siempre en solo lectura |
+
+Fuera de una demo, estos tres usuarios se sustituirían por el directorio del centro (OIDC/LDAP).
+
+- `SESION_CLAVE` (opcional, 16 o más caracteres) cifra la cookie de sesión. Sin ella se genera una clave
+  aleatoria al arrancar, así que reiniciar la app cierra las sesiones abiertas.
+- La app usa dos conexiones a la base de datos: `app_lector` (dashboard, solo lectura de `analitica`) y
+  `app_ingesta` (solo `INSERT` en `staging.spf_raw` y `EXECUTE` de los procedimientos de ingesta).
+- Límites de la ingesta: 2 MB, 5.000 filas y 60 columnas por archivo. El archivo no se guarda: la vista
+  previa vive en memoria y caduca a los 20 minutos.
 - Cada intento queda auditado en `staging.carga` (usuario, archivo, fecha, recuentos, estado y resultado).
 - Las peticiones que modifican datos exigen la cabecera `X-Hack4Edu: 1` (protección CSRF).
 

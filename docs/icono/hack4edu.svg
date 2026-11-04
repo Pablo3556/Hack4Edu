@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b8fae"/>
+      <stop offset="1" stop-color="#16506a"/>
+    </linearGradient>
+    <linearGradient id="barra" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd27a"/>
+      <stop offset="1" stop-color="#f0975e"/>
+    </linearGradient>
+  </defs>
+  <!-- Base con la retícula de iconos de macOS (824 px y esquinas suaves) -->
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#fondo)"/>
+  <!-- Barras de crecimiento -->
+  <rect x="352" y="452" width="80" height="170" rx="20" fill="url(#barra)"/>
+  <rect x="472" y="372" width="80" height="250" rx="20" fill="url(#barra)"/>
+  <rect x="592" y="282" width="80" height="340" rx="20" fill="url(#barra)"/>
+  <!-- Punto de tendencia -->
+  <circle cx="632" cy="222" r="34" fill="#ffffff"/>
+  <!-- Libro abierto -->
+  <path d="M512 682 C 440 628 340 610 232 626 L 232 772 C 340 756 440 774 512 828 Z" fill="#ffffff"/>
+  <path d="M512 682 C 584 628 684 610 792 626 L 792 772 C 684 756 584 774 512 828 Z" fill="#e4f2f7"/>
+</svg>

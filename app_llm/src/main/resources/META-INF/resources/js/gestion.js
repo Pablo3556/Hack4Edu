@@ -263,6 +263,7 @@ function tarjetaMedida(m) {
     el("option", { value: "en_curso" }, "En curso"), el("option", { value: "finalizada" }, "Finalizada"),
     el("option", { value: "descartada" }, "Descartada"));
   selEstado.value = m.estado;
+  selEstado.disabled = !!sesion.permisos.soloConsulta;
   selEstado.addEventListener("change", async () => {
     selEstado.disabled = true;
     try {

@@ -53,6 +53,10 @@ if [ ! -f .env ]; then
   } > .env
   chmod 600 .env
 fi
+# Variables añadidas en versiones posteriores: se completan en un .env antiguo
+for v in ADMINISTRACION_PASSWORD SESION_CLAVE; do
+  grep -q "^$v=." .env || echo "$v=$(openssl rand -hex 16)" >> .env
+done
 set -a; source .env; set +a
 PUERTO="${APP_PUERTO:-8080}"
 
@@ -72,10 +76,10 @@ docker compose up -d --build || fallo "docker compose ha fallado. Revisa los men
 
 paso "Esperando a que la aplicación responda"
 for _ in $(seq 1 150); do
-  curl -sf -o /dev/null "http://localhost:$PUERTO/api/datos/ambitos" && break
+  curl -sf -o /dev/null "http://localhost:$PUERTO/login.html" && break
   sleep 2
 done
-curl -sf -o /dev/null "http://localhost:$PUERTO/api/datos/ambitos" \
+curl -sf -o /dev/null "http://localhost:$PUERTO/login.html" \
   || fallo "La aplicación no responde. Mira los logs con: docker compose logs app"
 
 open "http://localhost:$PUERTO"
@@ -83,8 +87,10 @@ cat <<EOF
 
 $(printf '\033[1;32m✓ Hack4Edu está en marcha: http://localhost:%s\033[0m' "$PUERTO")
 
-  Usuario docente:    docente    / $DOCENTE_PASSWORD
-  Usuario dirección:  direccion  / $DIRECCION_PASSWORD
+  Usuarios (inicia sesión en la web con uno de ellos):
+    docente         / $DOCENTE_PASSWORD
+    direccion       / $DIRECCION_PASSWORD
+    administracion  / $ADMINISTRACION_PASSWORD
 
   La primera vez, los datos de demostración y el asistente se preparan en segundo
   plano durante unos minutos. Para pararlo, abre «Parar Hack4Edu.command».

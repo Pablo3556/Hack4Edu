@@ -14,7 +14,7 @@ async function apiIngesta(ruta, opciones = {}) {
   let cuerpo = null;
   try { cuerpo = await r.json(); } catch (_) { /* sin cuerpo */ }
   if (!r.ok) {
-    const e = new Error(r.status === 401 ? "Hace falta iniciar sesión como docente." : (cuerpo && cuerpo.error) || `Error ${r.status}`);
+    const e = new Error(r.status === 403 ? "Tu rol no permite esta acción." : (cuerpo && cuerpo.error) || `Error ${r.status}`);
     e.cuerpo = cuerpo;
     throw e;
   }
@@ -43,9 +43,9 @@ function mostrarVista(nombre) {
     $(vista).hidden = n !== nombre;
   }
   if (nombre === "panel") return;
-  // Estas secciones necesitan un centro (dirección) o un grupo (aula): con el rol Administración se cambia de rol
-  if (estado.rol === "global") {
-    aplicarRol(nombre === "direccion" ? "centro" : "grupo"); // llama a alCambiarAmbito
+  // Estas secciones necesitan un centro o un grupo: desde el conjunto de centros se pasa al ámbito que permita el rol
+  if (estado.rol === "global" || (nombre === "direccion" && estado.rol === "grupo")) {
+    aplicarRol(ambitoPara(nombre)); // llama a alCambiarAmbito
   } else {
     window.alCambiarAmbito();
   }
@@ -72,7 +72,7 @@ function actualizarDestino() {
   const listo = estado.rol === "grupo" && estado.grupo != null;
   destino.replaceChildren(listo
     ? el("span", {}, "Los datos se importarán en ", el("strong", {}, nombreAmbito()), ". Para otro grupo, cámbialo en la barra superior.")
-    : el("span", { class: "error" }, "Para importar, elige el rol «Docente» y un grupo en la barra superior."));
+    : el("span", { class: "error" }, "Para importar, elige «Docente» y un grupo en la barra superior."));
   $("btnValidar").disabled = !listo || !$("archivoCsv").files.length;
 }
 

@@ -430,6 +430,7 @@ async function iniciar() {
     window.Chart.defaults = { font: {}, plugins: { legend: { labels: {} } } };
   }
   estiloGraficas();
+  if (!(await cargarSesion())) return;
 
   document.querySelectorAll(".roles button").forEach((b) => b.addEventListener("click", () => aplicarRol(b.dataset.rol)));
   $("selCentro").addEventListener("change", (e) => {
@@ -446,15 +447,14 @@ async function iniciar() {
   try {
     estado.centros = await api("/api/datos/ambitos");
     rellenarSelectores();
-    estado.centro = null; // el rol inicial es Administración (global)
     await cargarFactores();
   } catch (e) {
     $("kpis").replaceChildren(el("div", { class: "panel error" },
-      "No se puede conectar con la base de datos: " + e.message + ". Comprueba que PostgreSQL está levantado (docker compose up -d db) y los datos cargados."));
+      "No se puede conectar con la base de datos: " + e.message + ". Comprueba que el contenedor está levantado (docker compose up -d) y los datos cargados."));
   }
   cargarModelos();
   cargarCalidad();
-  cargarAmbito();
+  aplicarRol(ambitoPara("panel")); // ámbito inicial según el rol (llama a cargarAmbito)
 }
 
 iniciar();

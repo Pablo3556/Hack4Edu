@@ -18,5 +18,10 @@ tell application "Terminal"
 end tell
 APPLESCRIPT
 
+# Icono de la app (docs/icono/hack4edu.icns, generado desde hack4edu.svg)
+cp docs/icono/hack4edu.icns Hack4Edu.app/Contents/Resources/applet.icns
+codesign --force --deep --sign - Hack4Edu.app 2>/dev/null   # refirma en local tras cambiar el icono
+touch Hack4Edu.app   # para que Finder refresque el icono
+
 echo "✓ Creada $RAIZ/Hack4Edu.app"
 echo "  Arrástrala al Dock para arrancar Hack4Edu con un clic (no la saques de esta carpeta)."

@@ -8,7 +8,7 @@
 # ---------------------------------------------------------------------
 set -uo pipefail
 
-for v in POSTGRES_PASSWORD ESCUELA_ADMIN_PASSWORD APP_LECTOR_PASSWORD APP_INGESTA_PASSWORD DOCENTE_PASSWORD DIRECCION_PASSWORD; do
+for v in POSTGRES_PASSWORD ESCUELA_ADMIN_PASSWORD APP_LECTOR_PASSWORD APP_INGESTA_PASSWORD DOCENTE_PASSWORD DIRECCION_PASSWORD ADMINISTRACION_PASSWORD; do
   if [ -z "${!v:-}" ]; then
     echo "Falta la variable $v (defínela en .env)" >&2
     exit 1
@@ -38,14 +38,16 @@ APP=$!
 
 # ---- 3. Datos de demostración (solo si la base está vacía) -----------
 cargar_datos() {
-  until curl -sf -o /dev/null http://127.0.0.1:8080/api/datos/ambitos; do sleep 2; done
+  # La API exige usuario: se usa el de dirección (HTTP Basic)
+  local cred="direccion:${DIRECCION_PASSWORD}"
+  until curl -sf -o /dev/null -u "$cred" http://127.0.0.1:8080/api/datos/ambitos; do sleep 2; done
   export PSQL_URL="postgresql://escuela_admin:${ESCUELA_ADMIN_PASSWORD}@127.0.0.1:5432/${POSTGRES_DB}"
   n=$(psql "$PSQL_URL" -tAc "SELECT count(*) FROM staging.carga WHERE tipo = 'kaggle'" 2>/dev/null || echo "?")
   if [ "$n" = "0" ]; then
     echo "[hack4edu] Cargando el dataset de demostración…"
     (cd "$RAIZ" && bash scripts/cargar_kaggle.sh datos/StudentPerformanceFactors.csv >/dev/null) \
       && echo "[hack4edu] Dataset cargado" || { echo "[hack4edu] La carga del dataset ha fallado" >&2; return; }
-    curl -sf -X POST --max-time 1800 http://127.0.0.1:8080/api/rag/ingesta >/dev/null \
+    curl -sf -X POST --max-time 1800 -u "$cred" http://127.0.0.1:8080/api/rag/ingesta >/dev/null \
       && echo "[hack4edu] Asistente indexado" \
       || echo "[hack4edu] No se pudo indexar el asistente (¿Ollama accesible en \$OLLAMA_URL con los modelos descargados?). Reintenta: POST /api/rag/ingesta"
   else

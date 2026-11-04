@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iniciar sesión · La escuela que aprende de sus datos</title>
+<link rel="icon" href="/img/icono.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/estilos.css?v=2">
+</head>
+<body class="pagina-login">
+
+<main class="login">
+  <section class="login-tarjeta">
+    <div class="login-marca">
+      <img src="/img/icono.svg" alt="" class="login-logo" width="72" height="72">
+      <h1>La escuela que aprende de sus datos</h1>
+      <p class="sub">Inicia sesión para continuar</p>
+    </div>
+
+    <form class="login-caja" method="post" action="/j_security_check">
+      <div class="caja bloqueo" id="errorLogin" role="alert" hidden>Usuario o contraseña incorrectos.</div>
+      <label>Usuario
+        <input type="text" name="j_username" id="usuario" autocomplete="username" placeholder="Tu usuario" required autofocus>
+      </label>
+      <label>Contraseña
+        <input type="password" name="j_password" autocomplete="current-password" placeholder="••••••••" required>
+      </label>
+      <button class="boton" type="submit">Entrar</button>
+    </form>
+  </section>
+</main>
+
+<script>
+  if (new URLSearchParams(location.search).has("error")) document.getElementById("errorLogin").hidden = false;
+</script>
+</body>
+</html>

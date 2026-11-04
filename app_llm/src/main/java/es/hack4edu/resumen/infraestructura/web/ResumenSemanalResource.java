@@ -4,6 +4,7 @@ import es.hack4edu.compartido.dominio.Ambito;
 import es.hack4edu.resumen.aplicacion.GenerarResumenSemanal;
 import es.hack4edu.resumen.dominio.ResumenSemanal;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/api/resumen-semanal")
 @Produces(MediaType.APPLICATION_JSON)
 @Blocking
+@RolesAllowed("docente")
 public class ResumenSemanalResource {
 
     @Inject
