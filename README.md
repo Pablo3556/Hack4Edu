@@ -4,6 +4,118 @@ RETO 13: convertir datos educativos en información comprensible y recomendacion
 priorizadas para docentes, equipos directivos y responsables educativos, con datos
 agregados, sin decisiones automáticas sobre alumnos y con todo ejecutándose en local.
 
+## Requisitos
+
+| Herramienta | Para qué | Notas |
+|---|---|---|
+| [Docker](https://docs.docker.com/get-docker/) con Docker Compose v2 | Base de datos + aplicación | Docker Desktop en macOS/Windows |
+| [Ollama](https://ollama.com/download) | Modelos de lenguaje del asistente | Se ejecuta en tu equipo, **no** dentro del contenedor |
+| Java 21 | Solo para desarrollo local (`./mvnw`) | No hace falta para ejecutar con Docker |
+
+Unos 4 GB de disco para los modelos básicos (más ~5,5 GB si descargas el modelo `preciso`).
+
+## Cómo se ejecuta
+
+**1. Clona el repositorio**
+
+```bash
+git clone https://github.com/Pablo3556/Hack4Edu.git
+cd Hack4Edu
+```
+
+**2. Crea el archivo `.env`** con las contraseñas (no se sube a Git):
+
+```bash
+cp .env.example .env
+```
+
+Cambia los valores `cambia-…`. Evita en las contraseñas los caracteres `@ : / ? # %`.
+
+**3. Descarga los modelos en Ollama** (una sola vez, con Ollama abierto):
+
+```bash
+ollama pull llama3.2:3b          # chat (obligatorio)
+ollama pull embeddinggemma       # embeddings del asistente (obligatorio)
+ollama pull llama3.2:1b          # opcional: modelo «rápido»
+ollama pull qwen3.5:4b           # opcional: modelo «preciso»
+```
+
+**4. Arranca la aplicación**
+
+```bash
+docker compose up -d --build
+docker compose logs -f app       # sigue el arranque (Ctrl+C para salir de los logs)
+```
+
+Cuando aparezcan `[hack4edu] Dataset cargado` y `[hack4edu] Asistente indexado`, abre
+**http://localhost:8080**.
+
+La primera vez, si la base está vacía, el contenedor carga el dataset de demostración y reindexa el asistente
+(`CARGAR_DATOS=true`; ponlo a `false` en `.env` para evitarlo). Si Ollama no está disponible en ese momento,
+la app funciona igual y el asistente se indexa después con `curl -X POST localhost:8080/api/rag/ingesta`.
+
+**5. (Opcional) Añade datos de evolución** para ver las pestañas de evolución, alertas y medidas con contenido:
+
+```bash
+bash scripts/generar_datos_demo.sh               # 4 trimestres sintéticos para los 36 grupos
+curl -X POST localhost:8080/api/rag/ingesta      # reindexa el asistente con los datos nuevos
+```
+
+### Comprobar que funciona
+
+```bash
+curl -s localhost:8080/api/rag/estado            # nº de fichas indexadas (~157)
+curl -s localhost:8080/api/modelos               # modelos disponibles y descargados
+```
+
+### Qué queda en marcha
+
+| Qué | Dónde |
+|---|---|
+| Aplicación | http://localhost:8080 (puerto configurable con `APP_PUERTO`) |
+| PostgreSQL | `127.0.0.1:5432`, solo desde este equipo (`DB_PUERTO`) |
+| Datos | volumen `pgdata` (sobrevive a `docker compose down`) |
+| Migraciones | las aplica la app al arrancar; a mano: `docker compose --profile migraciones run --rm migraciones` |
+| Ollama | `OLLAMA_URL` (por defecto `http://host.docker.internal:11434`, el del equipo) |
+
+Es un **único contenedor** con PostgreSQL 16 + pgvector y la aplicación. Ollama no va dentro de la imagen
+porque los modelos pesan varios GB.
+
+### Comandos útiles
+
+```bash
+docker compose logs -f app           # logs de la base de datos y de la aplicación
+docker compose down                  # parar (conserva los datos)
+docker compose down -v               # parar y borrar la base de datos
+docker compose up -d --build         # reconstruir tras cambiar el código
+```
+
+> `scripts/cargar_kaggle.sh` **sustituye** la línea base y borra los trimestres sintéticos y las importaciones.
+> Si lo ejecutas de nuevo, vuelve a lanzar `generar_datos_demo.sh`.
+
+### Problemas frecuentes
+
+| Síntoma | Solución |
+|---|---|
+| `define POSTGRES_PASSWORD en .env` al arrancar | Falta el archivo `.env`: `cp .env.example .env` |
+| `port is already allocated` | El puerto 8080 o 5432 está ocupado: pon otro en `.env` (`APP_PUERTO=8081`, `DB_PUERTO=5433`) |
+| «No se pudo indexar el asistente» en los logs | Ollama no está abierto o faltan modelos. Ábrelo, haz los `ollama pull` y ejecuta `curl -X POST localhost:8080/api/rag/ingesta` |
+| En **Linux**, el contenedor no llega a Ollama | Ollama escucha solo en `127.0.0.1`. Arráncalo con `OLLAMA_HOST=0.0.0.0 ollama serve` (o configúralo en su servicio de systemd) |
+| Cambié las contraseñas de `.env` y ya no conecta | Las contraseñas se fijan al crear el volumen. Para empezar de cero: `docker compose down -v` y vuelve a arrancar |
+
+## Desarrollo local (sin construir la imagen)
+
+La base de datos va en el contenedor y la aplicación se ejecuta en tu equipo con recarga en caliente:
+
+```bash
+cp .env.example .env
+APP_PUERTO=8081 docker compose up -d --build     # base de datos en 127.0.0.1:5432 (la app del contenedor queda en 8081)
+cd app_llm
+set -a && source ../.env && set +a               # exporta las contraseñas
+./mvnw quarkus:dev                                # → http://localhost:8080
+./mvnw test                                       # tests (no necesitan base de datos)
+```
+
 ## Estructura
 
 | Ruta | Contenido |
@@ -17,48 +129,6 @@ agregados, sin decisiones automáticas sobre alumnos y con todo ejecutándose en
 | `datos/` | Datasets de entrada (Student Performance Factors, Kaggle, CC0) y CSV de ejemplo |
 | `scripts/` | Carga de datos |
 | `docs/` | Documentación de arquitectura |
-
-## Arranque con Docker
-
-Un **único contenedor** con PostgreSQL 16 + pgvector y la aplicación. Los modelos de lenguaje los sirve el
-**Ollama del equipo**, que no va dentro de la imagen (pesa más de 7 GB).
-
-```bash
-cp .env.example .env                  # cambia las contraseñas
-ollama pull llama3.2:3b && ollama pull embeddinggemma    # en tu equipo, una vez
-docker compose up -d --build          # → http://localhost:8080
-```
-
-La primera vez, si la base está vacía, el contenedor carga el dataset de demostración y reindexa el asistente
-(`CARGAR_DATOS=true`; ponlo a `false` en `.env` para evitarlo). Si Ollama no está disponible en ese momento,
-la app funciona igual y el asistente se indexa después con `curl -X POST localhost:8080/api/rag/ingesta`.
-
-| Qué | Dónde |
-|---|---|
-| Aplicación | http://localhost:8080 |
-| PostgreSQL | `127.0.0.1:5432` (solo desde este equipo) |
-| Datos | volumen `pgdata` (sobrevive a `docker compose down`) |
-| Migraciones | las aplica la app al arrancar; a mano: `docker compose --profile migraciones run --rm migraciones` |
-| Ollama | `OLLAMA_URL` (por defecto `http://host.docker.internal:11434`, el del equipo) |
-
-```bash
-docker compose logs -f app           # logs de la base de datos y de la aplicación
-docker compose down                  # parar (conserva los datos)
-docker compose down -v               # parar y borrar la base de datos
-bash scripts/generar_datos_demo.sh   # añade 4 trimestres sintéticos a los 36 grupos
-```
-
-> `scripts/cargar_kaggle.sh` **sustituye** la línea base y borra los trimestres sintéticos y las importaciones.
-> Si lo ejecutas de nuevo, vuelve a lanzar `generar_datos_demo.sh`.
-
-## Desarrollo local (sin construir la imagen)
-
-```bash
-cp .env.example .env
-APP_PUERTO=8081 docker compose up -d --build     # la base de datos queda en 127.0.0.1:5432
-cd app_llm && set -a && source ../.env && set +a && ./mvnw quarkus:dev
-./mvnw test                                       # tests (no necesitan base de datos)
-```
 
 ## Asistente RAG
 
@@ -84,7 +154,7 @@ Detalles en [db/README.md](db/README.md).
 
 ## Resumen semanal, panel de dirección y seguimiento de medidas
 
-Tres secciones nuevas en la web (pestañas junto a «Análisis y evolución»):
+Tres secciones de la web (pestañas junto a «Análisis y evolución»):
 
 | Pestaña | Endpoint | Qué hace |
 |---|---|---|

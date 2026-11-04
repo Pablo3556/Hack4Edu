@@ -4,7 +4,7 @@
 #
 #   ./scripts/cargar_kaggle.sh [ruta/al/StudentPerformanceFactors.csv]
 #
-# Por defecto usa el contenedor "db" de docker compose. Para cargar contra
+# Por defecto usa el contenedor "app" de docker compose. Para cargar contra
 # otra instancia, define PSQL_URL (como escuela_admin), p. ej.:
 #   PSQL_URL=postgresql://escuela_admin:clave@localhost:5432/escuela ./scripts/cargar_kaggle.sh
 #
