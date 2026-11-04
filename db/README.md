@@ -28,7 +28,7 @@ set -a; source ../.env; set +a
 
 | Esquema | Contenido | Quién accede |
 |---|---|---|
-| `staging` | Filas por alumno: `spf_raw` (CSV tal cual, se vacía tras cargar), `alumno_spf` (foto actual: último periodo de cada grupo), `observacion` (histórico por periodo) y `carga` (auditoría) | `escuela_admin`; `app_ingesta` solo inserta en `spf_raw` y ejecuta los procedimientos de ingesta |
+| `staging` | Filas por alumno: `spf_raw` (CSV tal cual, se vacía tras cargar), `alumno_spf` (foto actual: último periodo de cada grupo), `observacion` (histórico por periodo) y `carga` (auditoría). Profesorado (V9): `profesor` (sin nombres) y `asignacion_docente` | `escuela_admin`; `app_ingesta` solo inserta en `spf_raw` y ejecuta los procedimientos de ingesta |
 | `analitica` | Catálogos (`centro`, `grupo`, `factor`, `factor_nivel`, `periodo`) y vistas agregadas | `app_lector`, solo lectura |
 | `ia` | `embeddings`: fichas agregadas + vector para el RAG (V6); `medida`: medidas de mejora sin datos personales (V8) | `app_lector`, lectura y escritura |
 
@@ -46,6 +46,8 @@ Todas tienen la columna `ambito` (`global`, `centro` o `grupo`) con `centro_id` 
 | `vw_evolucion` | Indicadores por periodo, centro y grupo (con desviación típica para las alertas) |
 | `vw_factor_nivel_sd` | Nota media y desviación típica por nivel de factor (intervalo del simulador) |
 | `vw_cargas` | Auditoría de importaciones: archivo, usuario, fecha, recuentos, estado y resultado |
+| `vw_progreso_grupo` | Progreso frente a lo esperado (nota real − esperada por nota previa y contexto) por grupo y centro, con su error típico y el perfil del equipo docente (V9; solo `centro` y `grupo`) |
+| `vw_progreso_docente` | Por docente: datos profesionales y progreso del alumnado de sus grupos publicables (V9) |
 
 ## Ingesta de docentes (V7)
 

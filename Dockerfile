@@ -38,7 +38,7 @@ COPY --from=build --chown=app:app /build/target/quarkus-app/quarkus/ /app/quarku
 # Roles y pgvector (se ejecutan solo cuando el volumen está vacío), datos de demostración y arranque
 COPY db/init/ /docker-entrypoint-initdb.d/
 COPY scripts/ /opt/hack4edu/scripts/
-COPY datos/StudentPerformanceFactors.csv /opt/hack4edu/datos/
+COPY datos/StudentPerformanceFactors.csv datos/profesorado.csv datos/asignaciones_docentes.csv /opt/hack4edu/datos/
 COPY docker/entrypoint.sh /usr/local/bin/hack4edu-entrypoint
 
 ENV POSTGRES_DB=escuela \

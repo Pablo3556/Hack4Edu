@@ -3,7 +3,8 @@
 # Arranque del contenedor único: PostgreSQL (pgvector) + aplicación.
 #   1. Arranca PostgreSQL con el entrypoint oficial (crea roles y pgvector la primera vez).
 #   2. Cuando acepta conexiones, arranca la aplicación. Su Flyway aplica las migraciones.
-#   3. Opcional (CARGAR_DATOS=true): si la base no tiene datos, carga el dataset y reindexa el asistente.
+#   3. Opcional (CARGAR_DATOS=true): si la base no tiene datos, carga el dataset y reindexa el asistente;
+#      si no tiene profesorado, carga el profesorado sintético.
 # Si un proceso se cae, el contenedor termina para que Docker lo reinicie.
 # ---------------------------------------------------------------------
 set -uo pipefail
@@ -52,6 +53,12 @@ cargar_datos() {
       || echo "[hack4edu] No se pudo indexar el asistente (¿Ollama accesible en \$OLLAMA_URL con los modelos descargados?). Reintenta: POST /api/rag/ingesta"
   else
     echo "[hack4edu] La base ya tiene datos; no se carga el dataset"
+  fi
+  # Profesorado sintético: también en bases ya existentes que aún no lo tienen
+  np=$(psql "$PSQL_URL" -tAc "SELECT count(*) FROM staging.profesor" 2>/dev/null || echo "?")
+  if [ "$np" = "0" ]; then
+    (cd "$RAIZ" && bash scripts/cargar_profesorado.sh >/dev/null) \
+      && echo "[hack4edu] Profesorado cargado" || echo "[hack4edu] La carga del profesorado ha fallado" >&2
   fi
 }
 if [ "${CARGAR_DATOS:-false}" = "true" ]; then

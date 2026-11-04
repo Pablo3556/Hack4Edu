@@ -1,0 +1,217 @@
+codigo_profesor,centro_id,grupo,asignatura,horas_semana,tutor
+P0101,1,B,Lengua,4,no
+P0101,1,C,Lengua,4,no
+P0106,1,A,Lengua,4,no
+P0106,1,D,Lengua,4,no
+P0108,1,B,Matemáticas,4,sí
+P0108,1,D,Matemáticas,4,no
+P0103,1,A,Matemáticas,4,no
+P0103,1,C,Matemáticas,4,sí
+P0105,1,A,Inglés,3,no
+P0105,1,B,Inglés,3,no
+P0107,1,C,Inglés,3,no
+P0107,1,D,Inglés,3,no
+P0104,1,A,Ciencias,3,no
+P0104,1,C,Ciencias,3,no
+P0102,1,B,Ciencias,3,no
+P0102,1,D,Ciencias,3,no
+P0104,1,A,Sociales,3,no
+P0104,1,B,Sociales,3,no
+P0104,1,C,Sociales,3,no
+P0104,1,D,Sociales,3,sí
+P0105,1,B,Educación Física,2,no
+P0105,1,D,Educación Física,2,no
+P0102,1,A,Educación Física,2,sí
+P0102,1,C,Educación Física,2,no
+P0206,2,A,Lengua,4,no
+P0206,2,B,Lengua,4,sí
+P0206,2,C,Lengua,4,no
+P0206,2,D,Lengua,4,no
+P0202,2,A,Matemáticas,4,sí
+P0202,2,B,Matemáticas,4,no
+P0202,2,C,Matemáticas,4,no
+P0202,2,D,Matemáticas,4,no
+P0207,2,A,Inglés,3,no
+P0207,2,C,Inglés,3,no
+P0204,2,B,Inglés,3,no
+P0204,2,D,Inglés,3,sí
+P0205,2,A,Ciencias,3,no
+P0205,2,B,Ciencias,3,no
+P0205,2,C,Ciencias,3,no
+P0205,2,D,Ciencias,3,no
+P0208,2,A,Sociales,3,no
+P0208,2,B,Sociales,3,no
+P0201,2,C,Sociales,3,sí
+P0201,2,D,Sociales,3,no
+P0203,2,A,Educación Física,2,no
+P0203,2,B,Educación Física,2,no
+P0203,2,C,Educación Física,2,no
+P0203,2,D,Educación Física,2,no
+P0302,3,B,Lengua,4,sí
+P0302,3,D,Lengua,4,no
+P0301,3,A,Lengua,4,no
+P0301,3,C,Lengua,4,no
+P0308,3,A,Matemáticas,4,no
+P0308,3,C,Matemáticas,4,no
+P0306,3,B,Matemáticas,4,no
+P0306,3,D,Matemáticas,4,sí
+P0307,3,B,Inglés,3,no
+P0307,3,D,Inglés,3,no
+P0305,3,A,Inglés,3,no
+P0305,3,C,Inglés,3,sí
+P0303,3,B,Ciencias,3,no
+P0303,3,D,Ciencias,3,no
+P0304,3,A,Ciencias,3,no
+P0304,3,C,Ciencias,3,no
+P0307,3,A,Sociales,3,sí
+P0307,3,B,Sociales,3,no
+P0304,3,C,Sociales,3,no
+P0304,3,D,Sociales,3,no
+P0303,3,B,Educación Física,2,no
+P0303,3,D,Educación Física,2,no
+P0305,3,A,Educación Física,2,no
+P0305,3,C,Educación Física,2,no
+P0402,4,A,Lengua,4,no
+P0402,4,B,Lengua,4,no
+P0402,4,C,Lengua,4,no
+P0402,4,D,Lengua,4,no
+P0405,4,A,Matemáticas,4,no
+P0405,4,B,Matemáticas,4,sí
+P0405,4,C,Matemáticas,4,no
+P0405,4,D,Matemáticas,4,no
+P0407,4,A,Inglés,3,no
+P0407,4,B,Inglés,3,no
+P0407,4,C,Inglés,3,no
+P0407,4,D,Inglés,3,no
+P0404,4,A,Ciencias,3,no
+P0404,4,C,Ciencias,3,no
+P0406,4,B,Ciencias,3,no
+P0406,4,D,Ciencias,3,sí
+P0401,4,B,Sociales,3,no
+P0401,4,D,Sociales,3,no
+P0408,4,A,Sociales,3,sí
+P0408,4,C,Sociales,3,no
+P0403,4,A,Educación Física,2,no
+P0403,4,D,Educación Física,2,no
+P0403,4,B,Educación Física,2,no
+P0403,4,C,Educación Física,2,sí
+P0504,5,A,Lengua,4,no
+P0504,5,C,Lengua,4,no
+P0505,5,B,Lengua,4,no
+P0505,5,D,Lengua,4,no
+P0507,5,A,Matemáticas,4,sí
+P0507,5,B,Matemáticas,4,no
+P0507,5,C,Matemáticas,4,no
+P0507,5,D,Matemáticas,4,no
+P0501,5,A,Inglés,3,no
+P0501,5,B,Inglés,3,no
+P0501,5,C,Inglés,3,no
+P0501,5,D,Inglés,3,no
+P0502,5,A,Ciencias,3,no
+P0502,5,B,Ciencias,3,no
+P0502,5,C,Ciencias,3,no
+P0502,5,D,Ciencias,3,no
+P0508,5,A,Sociales,3,no
+P0508,5,B,Sociales,3,no
+P0508,5,C,Sociales,3,sí
+P0508,5,D,Sociales,3,no
+P0503,5,B,Educación Física,2,sí
+P0503,5,C,Educación Física,2,no
+P0506,5,A,Educación Física,2,no
+P0506,5,D,Educación Física,2,sí
+P0607,6,A,Lengua,4,no
+P0607,6,B,Lengua,4,sí
+P0607,6,C,Lengua,4,no
+P0607,6,D,Lengua,4,no
+P0608,6,A,Matemáticas,4,no
+P0608,6,B,Matemáticas,4,no
+P0602,6,C,Matemáticas,4,no
+P0602,6,D,Matemáticas,4,no
+P0603,6,B,Inglés,3,no
+P0603,6,C,Inglés,3,sí
+P0606,6,A,Inglés,3,no
+P0606,6,D,Inglés,3,sí
+P0605,6,A,Ciencias,3,sí
+P0605,6,B,Ciencias,3,no
+P0605,6,C,Ciencias,3,no
+P0605,6,D,Ciencias,3,no
+P0604,6,A,Sociales,3,no
+P0604,6,B,Sociales,3,no
+P0604,6,C,Sociales,3,no
+P0604,6,D,Sociales,3,no
+P0601,6,A,Educación Física,2,no
+P0601,6,D,Educación Física,2,no
+P0601,6,B,Educación Física,2,no
+P0601,6,C,Educación Física,2,no
+P0705,7,B,Lengua,4,no
+P0705,7,D,Lengua,4,no
+P0702,7,A,Lengua,4,no
+P0702,7,C,Lengua,4,no
+P0704,7,A,Matemáticas,4,no
+P0704,7,D,Matemáticas,4,sí
+P0707,7,B,Matemáticas,4,no
+P0707,7,C,Matemáticas,4,sí
+P0708,7,B,Inglés,3,no
+P0708,7,C,Inglés,3,no
+P0701,7,A,Inglés,3,sí
+P0701,7,D,Inglés,3,no
+P0703,7,C,Ciencias,3,no
+P0703,7,D,Ciencias,3,no
+P0706,7,A,Ciencias,3,no
+P0706,7,B,Ciencias,3,sí
+P0701,7,C,Sociales,3,no
+P0701,7,D,Sociales,3,no
+P0706,7,A,Sociales,3,no
+P0706,7,B,Sociales,3,no
+P0708,7,A,Educación Física,2,no
+P0708,7,D,Educación Física,2,no
+P0703,7,B,Educación Física,2,no
+P0703,7,C,Educación Física,2,no
+P0804,8,B,Lengua,4,no
+P0804,8,D,Lengua,4,no
+P0806,8,A,Lengua,4,no
+P0806,8,C,Lengua,4,sí
+P0803,8,C,Matemáticas,4,no
+P0803,8,D,Matemáticas,4,sí
+P0801,8,A,Matemáticas,4,no
+P0801,8,B,Matemáticas,4,sí
+P0802,8,B,Inglés,3,no
+P0802,8,C,Inglés,3,no
+P0808,8,A,Inglés,3,no
+P0808,8,D,Inglés,3,no
+P0807,8,C,Ciencias,3,no
+P0807,8,D,Ciencias,3,no
+P0805,8,A,Ciencias,3,no
+P0805,8,B,Ciencias,3,no
+P0802,8,A,Sociales,3,sí
+P0802,8,B,Sociales,3,no
+P0802,8,C,Sociales,3,no
+P0802,8,D,Sociales,3,no
+P0808,8,A,Educación Física,2,no
+P0808,8,B,Educación Física,2,no
+P0808,8,C,Educación Física,2,no
+P0808,8,D,Educación Física,2,no
+P0901,9,A,Lengua,4,no
+P0901,9,B,Lengua,4,sí
+P0906,9,C,Lengua,4,no
+P0906,9,D,Lengua,4,no
+P0903,9,A,Matemáticas,4,no
+P0903,9,B,Matemáticas,4,no
+P0903,9,C,Matemáticas,4,sí
+P0903,9,D,Matemáticas,4,no
+P0907,9,C,Inglés,3,no
+P0907,9,D,Inglés,3,no
+P0904,9,A,Inglés,3,no
+P0904,9,B,Inglés,3,no
+P0902,9,C,Ciencias,3,no
+P0902,9,D,Ciencias,3,no
+P0905,9,A,Ciencias,3,no
+P0905,9,B,Ciencias,3,no
+P0908,9,C,Sociales,3,no
+P0908,9,D,Sociales,3,sí
+P0904,9,A,Sociales,3,no
+P0904,9,B,Sociales,3,no
+P0905,9,C,Educación Física,2,no
+P0905,9,D,Educación Física,2,no
+P0907,9,A,Educación Física,2,sí
+P0907,9,B,Educación Física,2,no

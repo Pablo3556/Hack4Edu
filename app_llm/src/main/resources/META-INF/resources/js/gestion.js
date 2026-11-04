@@ -132,8 +132,90 @@ async function cargarDireccion() {
     $("tablaSemaforo").replaceChildren(el("div", { class: "error" }, "No se pudo cargar el panel: " + e.message));
     $("tablaEquidad").replaceChildren();
   }
+  try {
+    const p = await api("/api/direccion/progreso-docente?centro=" + estado.centro);
+    if (!vigente("direccion", t)) return;
+    pintarProgreso(p);
+  } catch (e) {
+    if (!vigente("direccion", t)) return;
+    $("tablaProgresoGrupos").replaceChildren(el("div", { class: "error" }, "No se pudo cargar el progreso: " + e.message));
+    $("tablaProgresoDocentes").replaceChildren();
+  }
 }
 window.cargarDireccion = cargarDireccion;
+
+// Progreso frente a lo esperado: "por debajo" se muestra en ámbar, nunca en rojo (orienta, no señala)
+const PROGRESO = {
+  por_encima: { color: "verde", texto: "Por encima de lo esperado" },
+  en_lo_esperado: { color: null, texto: "En lo esperado" },
+  por_debajo: { color: "ambar", texto: "Por debajo de lo esperado" }
+};
+
+function chipProgreso(estimacion) {
+  const v = estimacion && PROGRESO[estimacion.veredicto];
+  if (!v) return el("span", { class: "sem neutro" }, "Sin datos suficientes");
+  return v.color ? chipSemaforo(v.color, v.texto) : el("span", { class: "sem neutro" }, v.texto);
+}
+
+function celdaProgreso(e) {
+  const td = el("td", { class: "num" });
+  if (!e || e.progreso == null) return td;
+  td.append(el("strong", {}, conSigno(e.progreso, 1) + " pts"),
+    el("span", { class: "dif" }, `IC 95 %: ${conSigno(e.icInferior, 1)} a ${conSigno(e.icSuperior, 1)}`));
+  return td;
+}
+
+const FORMACION = { grado: "Grado", master: "Máster", doctorado: "Doctorado" };
+
+function pintarProgreso(p) {
+  $("notaProgreso").textContent = `${p.centro}: progreso del alumnado frente a lo esperado por su punto de partida y su contexto.`;
+  $("recuentoProgreso").replaceChildren(
+    ...Object.entries(PROGRESO).map(([k, v]) => el("div", { class: "kpi" },
+      el("div", { class: "nombre" }, v.texto), el("div", { class: "valor" }, String(p.recuentoGrupos[k] ?? 0)),
+      el("div", { class: "comp" }, "grupos"))));
+
+  const filas = [...(p.centroFila ? [p.centroFila] : []), ...p.grupos];
+  if (!filas.length) {
+    $("tablaProgresoGrupos").replaceChildren(el("div", { class: "vacio" }, "Ningún grupo de este centro llega al umbral de 10 alumnos."));
+  } else {
+    $("tablaProgresoGrupos").replaceChildren(el("table", { class: "semaforo" },
+      el("thead", {}, el("tr", {},
+        el("th", {}, "Grupo"), el("th", { class: "num" }, "Alumnado"), el("th", { class: "num" }, "Progreso vs esperado"),
+        el("th", {}, "Resultado"), el("th", {}, "Tutoría"), el("th", { class: "num" }, "Docentes"),
+        el("th", { class: "num" }, "Experiencia media (años)"), el("th", { class: "num" }, "Formación media (h/año)"))),
+      el("tbody", {}, ...filas.map((g, i) => el("tr", {},
+        el("td", {}, i === 0 && p.centroFila ? el("strong", {}, g.nombre + " (centro)") : g.nombre),
+        el("td", { class: "num" }, fmt(g.nAlumnos, 0)),
+        celdaProgreso(g.progreso),
+        el("td", {}, chipProgreso(g.progreso)),
+        el("td", {}, g.tutor || "—"),
+        el("td", { class: "num" }, g.nDocentes ? String(g.nDocentes) : "—"),
+        el("td", { class: "num" }, g.experienciaMedia == null ? "—" : fmt(g.experienciaMedia, 1)),
+        el("td", { class: "num" }, g.formacionMedia == null ? "—" : fmt(g.formacionMedia, 0)))))));
+  }
+
+  if (!p.hayProfesorado) {
+    $("tablaProgresoDocentes").replaceChildren(el("div", { class: "vacio" },
+      "Este centro no tiene profesorado cargado. Cárgalo con ./scripts/cargar_profesorado.sh"));
+  } else {
+    $("tablaProgresoDocentes").replaceChildren(el("table", { class: "semaforo" },
+      el("thead", {}, el("tr", {},
+        el("th", {}, "Docente"), el("th", {}, "Grupos"), el("th", {}, "Asignaturas"), el("th", { class: "num" }, "Horas/sem."),
+        el("th", { class: "num" }, "Experiencia"), el("th", {}, "Formación"), el("th", { class: "num" }, "Alumnado"),
+        el("th", { class: "num" }, "Progreso de sus grupos"), el("th", {}, "Resultado"))),
+      el("tbody", {}, ...p.docentes.map((d) => el("tr", {},
+        el("td", {}, el("strong", {}, d.codigo), el("span", { class: "dif" }, d.tipoContrato === "parcial" ? "Tiempo parcial" : "Tiempo completo")),
+        el("td", {}, d.grupos || "Sin grupos asignados"),
+        el("td", {}, d.asignaturas || "—"),
+        el("td", { class: "num" }, d.horasSemana == null ? "—" : String(d.horasSemana)),
+        el("td", { class: "num" }, `${d.aniosExperiencia} años`),
+        el("td", {}, FORMACION[d.nivelFormacion] || d.nivelFormacion, el("span", { class: "dif" }, `${d.horasFormacionAnio} h/año`)),
+        el("td", { class: "num" }, d.nAlumnos == null ? "—" : fmt(d.nAlumnos, 0)),
+        celdaProgreso(d.progreso),
+        el("td", {}, chipProgreso(d.progreso)))))));
+  }
+  $("avisoProgreso").replaceChildren(el("div", {}, p.metodo), el("div", {}, p.aviso));
+}
 
 function celdaSemaforo(c, ind) {
   const td = el("td", { class: "celda" });

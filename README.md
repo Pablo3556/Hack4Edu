@@ -93,6 +93,15 @@ las señales de evolución y las medidas en curso. Incluye un botón «Copiar re
 **Semáforo verde/ámbar/rojo por grupo** frente al conjunto de centros (nota, asistencia, % de asistencia baja,
 acceso a recursos, tutorías) y brechas de equidad del centro. Los umbrales se muestran en pantalla.
 
+**Progreso del alumnado y equipo docente.** Para cada grupo y para cada docente del centro, cuánto progresa el
+alumnado **frente a lo esperado** según su punto de partida y su contexto (nota previa, acceso a recursos,
+implicación familiar y renta), con su intervalo de confianza del 95 %. Solo se marca «por encima» o «por debajo»
+si el intervalo no incluye el 0 **y** la diferencia es de al menos 0,5 puntos; lo demás es «en lo esperado».
+- No se usa la nota bruta (premiaría a quien tiene los grupos más favorables) ni la evaluación de dirección.
+- El resultado de un docente es el de sus grupos y lo comparte con el resto del equipo que les da clase:
+  orienta conversaciones de mejora, **no es una evaluación del desempeño** (ver [Seguridad y privacidad](#seguridad-y-privacidad)).
+- Los docentes se listan por código, nunca ordenados por resultado.
+
 ### ✅ Seguimiento de medidas
 Registra una medida (por ejemplo, «tutoría entre iguales en 2.º B») con el indicador a vigilar y el periodo de
 inicio. Con los datos posteriores muestra el **antes y el después**, descontando lo que cambió en el resto de
@@ -243,6 +252,12 @@ Plantilla en [`.env.example`](.env.example). `.env` nunca se sube a Git.
   (Kaggle, licencia CC0), con 6.607 registros sintéticos repartidos al azar en **9 centros ficticios con 4 grupos cada uno**.
   Por eso las diferencias entre centros son ruido estadístico y no deben interpretarse; la web lo advierte.
 - **Trimestres de evolución**: `scripts/generar_datos_demo.sh` genera 4 trimestres sintéticos.
+- **Profesorado (sintético)**: [`datos/profesorado.csv`](datos/profesorado.csv) (72 docentes, 8 por centro, solo
+  con código: experiencia, titulación, horas de formación y tipo de contrato) y
+  [`datos/asignaciones_docentes.csv`](datos/asignaciones_docentes.csv) (qué asignatura da cada docente en qué grupo,
+  horas y tutoría). Se generan con `python3 scripts/generar_profesorado.py` y se cargan con
+  `bash scripts/cargar_profesorado.sh` (el contenedor lo hace solo la primera vez). El CSV de docentes **no lleva
+  notas**: el progreso se calcula siempre con los datos de alumnado.
 - **Importaciones de docentes**: CSV con separador `,`, `;` o tabulador, en UTF-8 o Windows-1252. Las
   columnas se reconocen aunque tengan otros nombres («Nota final», «Asistencia (%)»…).
   - Obligatorias: *Nota final* y *Asistencia (%)*.
@@ -295,6 +310,7 @@ curl -u "docente:$DOCENTE_PASSWORD" "localhost:8080/api/datos/resumen?centro=1&g
 | `GET /api/simulador/factores` · `GET /api/simulador` | docente, direccion | Simulador «¿qué pasaría si…?» |
 | `GET /api/resumen-semanal` | docente, direccion | Tres prioridades con su fuente |
 | `GET /api/direccion/semaforo?centro=` | direccion, administracion | Semáforo por grupo |
+| `GET /api/direccion/progreso-docente?centro=` | direccion, administracion | Progreso frente a lo esperado por grupo y docente |
 | `GET /api/medidas` · `indicadores` · `periodos` | todos | Medidas del ámbito y catálogos |
 | `POST /api/medidas` · `PUT /api/medidas/{id}/estado` | docente, direccion | Registrar medida o cambiar su estado ¹ |
 | `POST /api/ingesta` → `PUT /{token}/mapeo` → `POST /{token}/confirmar` | docente, direccion | Importar CSV: validar, corregir columnas, confirmar ¹ |
@@ -349,6 +365,11 @@ Más detalle en [docs/arquitectura.md](docs/arquitectura.md) y [db/README.md](db
   - `app_lector`: solo lee las vistas agregadas.
   - `app_ingesta`: solo inserta en la tabla de entrada y ejecuta los procedimientos de carga.
 - **Umbral k = 10**: ninguna cifra sale de menos de 10 registros.
+- **Profesorado**: sus datos viven en `staging` (sin nombres) y la app solo lee vistas agregadas. Los grupos por
+  debajo del umbral tampoco cuentan para el resultado de sus docentes (evita deducirlos restando). Con datos
+  reales, usar información del profesorado para evaluar su rendimiento es un uso de **alto riesgo** según el
+  Reglamento Europeo de IA (anexo III, punto 4) y exige informar a la plantilla, evaluación de impacto (RGPD) y
+  ninguna decisión automática. Por eso la pantalla lo presenta como apoyo a la mejora, sin rankings.
 - **Importaciones**: el archivo no se guarda. La vista previa vive en memoria y caduca a los 20 minutos.
   Cada intento queda auditado (usuario, archivo, fecha, recuentos y resultado).
 - **CSRF**: las escrituras exigen la cabecera `X-Hack4Edu: 1`.
@@ -392,10 +413,10 @@ Hack4Edu/
 │       ├── java/es/hack4edu/<modulo>/              código (dominio · aplicacion · infraestructura)
 │       └── resources/
 │           ├── META-INF/resources/                 web: login.html, index.html, css/, js/, img/
-│           ├── db/migration/                       migraciones Flyway V1–V8
+│           ├── db/migration/                       migraciones Flyway V1–V9
 │           └── application.properties
 ├── db/                                             inicialización de PostgreSQL y documentación
-├── datos/                                          dataset de Kaggle y CSV de ejemplo
+├── datos/                                          dataset de Kaggle, profesorado sintético y CSV de ejemplo
 ├── scripts/                                        carga de datos y creación de la app de macOS
 └── docs/                                           arquitectura e icono
 ```
