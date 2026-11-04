@@ -7,3 +7,6 @@
 .codex/
 .vscode/
 *.iml
+
+# App de macOS generada por scripts/crear_app_macos.sh
+Hack4Edu.app/

@@ -14,7 +14,20 @@ agregados, sin decisiones automáticas sobre alumnos y con todo ejecutándose en
 
 Unos 4 GB de disco para los modelos básicos (más ~5,5 GB si descargas el modelo `preciso`).
 
-## Cómo se ejecuta
+## Arranque con un clic (macOS)
+
+Con Docker Desktop y Ollama instalados, haz **doble clic en `Hack4Edu.command`**. El script abre Docker y
+Ollama si están cerrados, crea `.env` con contraseñas aleatorias la primera vez, descarga los modelos que
+falten, arranca el contenedor y abre el navegador. Al terminar muestra los usuarios `docente` y `direccion`
+con sus contraseñas. Para pararlo: doble clic en `Parar Hack4Edu.command`.
+
+¿Prefieres un icono para el Dock? Ejecuta una vez `bash scripts/crear_app_macos.sh`: crea `Hack4Edu.app`
+en la carpeta del proyecto (no la muevas de ahí; arrástrala al Dock).
+
+> La primera vez que abras el `.command`, macOS puede bloquearlo por ser de «un desarrollador no
+> identificado»: clic derecho → **Abrir** → **Abrir**. Solo hace falta una vez.
+
+## Cómo se ejecuta (paso a paso)
 
 **1. Clona el repositorio**
 
