@@ -1,0 +1,47 @@
+# Levantar desde la carpeta app_llm:  docker compose up -d
+# Mismo nombre de proyecto que el docker-compose.yml de la raíz, así ambos
+# comparten contenedor y volumen (no chocan por el puerto 5432).
+name: hack4edu
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: escuela
+      POSTGRES_USER: postgres
+      # Valores por defecto = los de .env.example y application.properties.
+      # Se pueden sobrescribir con un .env en esta carpeta.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cambia-superusuario}
+      ESCUELA_ADMIN_PASSWORD: ${ESCUELA_ADMIN_PASSWORD:-cambia-admin}
+      APP_LECTOR_PASSWORD: ${APP_LECTOR_PASSWORD:-cambia-lector}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d escuela"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Aplica las migraciones sin necesidad de arrancar la app.
+  # La app Quarkus también las aplica al arrancar (quarkus.flyway.migrate-at-start);
+  # ambos comparten la tabla flyway_schema_history, así que da igual cuál vaya primero.
+  migraciones:
+    image: flyway/flyway:10
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      -url=jdbc:postgresql://db:5432/escuela
+      -user=escuela_admin
+      -password=${ESCUELA_ADMIN_PASSWORD:-cambia-admin}
+      -locations=filesystem:/flyway/sql
+      -connectRetries=10
+      migrate
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql:ro
+
+volumes:
+  pgdata:
