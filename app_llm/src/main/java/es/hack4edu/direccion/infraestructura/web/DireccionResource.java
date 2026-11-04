@@ -1,5 +1,6 @@
 package es.hack4edu.direccion.infraestructura.web;
 
+import es.hack4edu.compartido.infraestructura.web.ControlAcceso;
 import es.hack4edu.direccion.aplicacion.ConsultarSemaforo;
 import es.hack4edu.direccion.dominio.PanelDireccion;
 import io.smallrye.common.annotation.Blocking;
@@ -21,9 +22,13 @@ public class DireccionResource {
     @Inject
     ConsultarSemaforo semaforo;
 
+    @Inject
+    ControlAcceso acceso;
+
     @GET
     @Path("/semaforo")
     public PanelDireccion.Panel semaforo(@QueryParam("centro") Integer centro) {
+        acceso.comprobar(centro, null);
         return semaforo.semaforo(centro);
     }
 }

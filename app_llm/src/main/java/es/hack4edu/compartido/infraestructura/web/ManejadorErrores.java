@@ -24,6 +24,7 @@ public class ManejadorErrores implements ExceptionMapper<ErrorAplicacion> {
     static int estado(ErrorAplicacion.Tipo tipo) {
         return switch (tipo) {
             case PETICION_INVALIDA -> 400;
+            case PROHIBIDO -> 403;
             case NO_ENCONTRADO -> 404;
             case CONFLICTO -> 409;
             case DEMASIADO_GRANDE -> 413;

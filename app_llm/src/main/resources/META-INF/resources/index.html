@@ -8,7 +8,7 @@
      descargad el fichero a /js/chart.umd.min.js y cambiad esta línea. -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="icon" href="/img/icono.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/css/estilos.css?v=2">
+<link rel="stylesheet" href="/css/estilos.css?v=3">
 </head>
 <body>
 
@@ -84,7 +84,7 @@
       <div class="grafica"><canvas id="gEquidad" aria-label="Brechas de los factores contextuales"></canvas></div>
     </section>
 
-    <section class="panel ancho-12">
+    <section class="panel ancho-12" id="panelCentros" hidden>
       <h2>Comparativa de centros</h2>
       <p class="nota">Nota media y asistencia media por centro.</p>
       <div class="grafica"><canvas id="gCentros" aria-label="Comparativa de centros"></canvas></div>
@@ -241,9 +241,9 @@
   Todo se ejecuta en este equipo (PostgreSQL + Ollama).
 </footer>
 
-<script src="/js/sesion.js"></script>
-<script src="/js/panel.js"></script>
-<script src="/js/analisis.js"></script>
-<script src="/js/gestion.js"></script>
+<script src="/js/sesion.js?v=3"></script>
+<script src="/js/panel.js?v=3"></script>
+<script src="/js/analisis.js?v=3"></script>
+<script src="/js/gestion.js?v=3"></script>
 </body>
 </html>

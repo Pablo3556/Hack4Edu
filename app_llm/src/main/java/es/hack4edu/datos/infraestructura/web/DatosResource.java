@@ -1,6 +1,6 @@
 package es.hack4edu.datos.infraestructura.web;
 
-import es.hack4edu.compartido.dominio.Ambito;
+import es.hack4edu.compartido.infraestructura.web.ControlAcceso;
 import es.hack4edu.datos.aplicacion.ConsultaAgregados;
 import es.hack4edu.datos.dominio.Agregados;
 import io.smallrye.common.annotation.Blocking;
@@ -26,24 +26,37 @@ public class DatosResource {
     @Inject
     ConsultaAgregados datos;
 
+    @Inject
+    ControlAcceso acceso;
+
     /** Centros y grupos para los selectores. */
     @GET
     @Path("/ambitos")
     public List<Agregados.Centro> ambitos() {
-        return datos.ambitos();
+        ControlAcceso.Permiso p = acceso.permiso();
+        if (p.todosLosCentros()) {
+            return datos.ambitos();
+        }
+        // Dirección: su centro con todos sus grupos. Docente: su centro con solo su grupo.
+        return datos.ambitos().stream()
+                .filter(c -> c.id() == p.centro())
+                .map(c -> p.grupo() == null ? c : new Agregados.Centro(c.id(), c.nombre(), c.tipo(),
+                        c.grupos().stream().filter(g -> g.id() == p.grupo()).toList()))
+                .toList();
     }
 
     /** Indicadores del ámbito pedido y, para comparar, los globales. */
     @GET
     @Path("/resumen")
     public Agregados.ResumenAmbito resumen(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
-        return datos.resumen(Ambito.de(centro, grupo));
+        return datos.resumen(acceso.comprobar(centro, grupo));
     }
 
     /** Resumen de todos los centros (comparativa). */
     @GET
     @Path("/centros")
     public List<Agregados.Resumen> centros() {
+        acceso.exigirTodosLosCentros();
         return datos.centros();
     }
 
@@ -51,14 +64,14 @@ public class DatosResource {
     @GET
     @Path("/prioridades")
     public List<Agregados.Prioridad> prioridades(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
-        return datos.prioridades(Ambito.de(centro, grupo));
+        return datos.prioridades(acceso.comprobar(centro, grupo));
     }
 
     /** Brecha de todos los factores (accionables y contextuales) en el ámbito. */
     @GET
     @Path("/brechas")
     public List<Agregados.Brecha> brechas(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
-        return datos.brechas(Ambito.de(centro, grupo));
+        return datos.brechas(acceso.comprobar(centro, grupo));
     }
 
     /** Catálogo de factores para el selector. */
@@ -73,7 +86,7 @@ public class DatosResource {
     @Path("/factor/{codigo}")
     public List<Agregados.NivelFactor> factor(@PathParam("codigo") String codigo, @QueryParam("centro") Integer centro,
                                               @QueryParam("grupo") Integer grupo) {
-        return datos.nivelesDeFactor(codigo, Ambito.de(centro, grupo));
+        return datos.nivelesDeFactor(codigo, acceso.comprobar(centro, grupo));
     }
 
     /** Valores ausentes por columna. */

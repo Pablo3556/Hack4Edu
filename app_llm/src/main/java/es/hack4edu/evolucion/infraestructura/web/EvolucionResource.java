@@ -1,6 +1,6 @@
 package es.hack4edu.evolucion.infraestructura.web;
 
-import es.hack4edu.compartido.dominio.Ambito;
+import es.hack4edu.compartido.infraestructura.web.ControlAcceso;
 import es.hack4edu.evolucion.aplicacion.ConsultarEvolucion;
 import es.hack4edu.evolucion.dominio.InformeEvolucion;
 import io.smallrye.common.annotation.Blocking;
@@ -22,8 +22,11 @@ public class EvolucionResource {
     @Inject
     ConsultarEvolucion evolucion;
 
+    @Inject
+    ControlAcceso acceso;
+
     @GET
     public InformeEvolucion.Evolucion evolucion(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
-        return evolucion.evolucion(Ambito.de(centro, grupo));
+        return evolucion.evolucion(acceso.comprobar(centro, grupo));
     }
 }

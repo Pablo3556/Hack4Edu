@@ -1,6 +1,7 @@
 package es.hack4edu.ingesta.infraestructura.web;
 
 import es.hack4edu.compartido.dominio.ErrorAplicacion;
+import es.hack4edu.compartido.infraestructura.web.ControlAcceso;
 import es.hack4edu.ingesta.aplicacion.ImportarDatos;
 import es.hack4edu.ingesta.dominio.Importacion;
 import io.quarkus.logging.Log;
@@ -48,6 +49,9 @@ public class IngestaResource {
     SecurityIdentity identidad;
 
     @Inject
+    ControlAcceso acceso;
+
+    @Inject
     ImportarDatos importacion;
 
     /** Esquema interno: campos, cuáles son obligatorios y qué valores admiten. */
@@ -75,6 +79,7 @@ public class IngestaResource {
         String nombre = ImportarDatos.nombreSeguro(archivo.fileName());
         byte[] bytes;
         try {
+            acceso.comprobar(centro, grupo);
             importacion.validarSubida(nombre, archivo.size(), centro, grupo, periodo);
             bytes = Files.readAllBytes(archivo.uploadedFile());
         } catch (IOException e) {

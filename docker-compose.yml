@@ -22,6 +22,10 @@ services:
       DOCENTE_PASSWORD: ${DOCENTE_PASSWORD:?define DOCENTE_PASSWORD en .env}
       DIRECCION_PASSWORD: ${DIRECCION_PASSWORD:?define DIRECCION_PASSWORD en .env}
       ADMINISTRACION_PASSWORD: ${ADMINISTRACION_PASSWORD:?define ADMINISTRACION_PASSWORD en .env}
+      # Centro y grupo de cada usuario (ids de analitica.centro / analitica.grupo)
+      DIRECCION_CENTRO: ${DIRECCION_CENTRO:-1}
+      DOCENTE_CENTRO: ${DOCENTE_CENTRO:-1}
+      DOCENTE_GRUPO: ${DOCENTE_GRUPO:-1}
       # Clave de la cookie de sesión (opcional: sin ella, reiniciar la app cierra las sesiones)
       SESION_CLAVE: ${SESION_CLAVE:-}
       # Carga el dataset de demostración (y reindexa el asistente) la primera vez, si la base está vacía

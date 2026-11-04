@@ -11,13 +11,14 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Sesión del usuario en la web. El login lo hace Quarkus (formulario de /login.html → /j_security_check);
  * aquí solo se dice quién es y se cierra la sesión.
- *   GET  /api/sesion        → usuario, rol principal y roles
+ *   GET  /api/sesion        → usuario, rol principal, roles y el centro/grupo que puede consultar
  *   POST /api/sesion/salir  → borra la cookie de sesión
  */
 @Path("/api/sesion")
@@ -33,14 +34,23 @@ public class SesionResource {
     @Inject
     SecurityIdentity identidad;
 
+    @Inject
+    ControlAcceso acceso;
+
     @GET
     @Authenticated
     public Map<String, Object> actual() {
         List<String> roles = ROLES.stream().filter(identidad::hasRole).toList();
-        return Map.of(
-                "usuario", identidad.getPrincipal().getName(),
-                "rol", roles.isEmpty() ? "" : roles.get(0),
-                "roles", roles);
+        Map<String, Object> datos = new LinkedHashMap<>();
+        datos.put("usuario", identidad.getPrincipal().getName());
+        datos.put("rol", roles.isEmpty() ? "" : roles.get(0));
+        datos.put("roles", roles);
+        if (!roles.isEmpty()) {
+            ControlAcceso.Permiso p = acceso.permiso();
+            datos.put("centro", p.centro());   // null = todos los centros
+            datos.put("grupo", p.grupo());     // null = todos los grupos del centro
+        }
+        return datos;
     }
 
     @POST

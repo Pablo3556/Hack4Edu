@@ -300,6 +300,7 @@ async function cargarEquidad() {
 // Comparativa de centros
 // ---------------------------------------------------------------------
 async function cargarCentros() {
+  if (sesion.rol !== "administracion") return;
   const t = nuevoTurno("centros");
   try {
     const centros = await api("/api/datos/centros");

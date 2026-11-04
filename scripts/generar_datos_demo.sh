@@ -13,7 +13,7 @@
 # Pasan por staging.abrir_carga + staging.transformar_ingesta, el mismo camino que la
 # importación de docentes (auditoría incluida, usuario «demo»). Es repetible: volver a
 # ejecutarlo sustituye los datos anteriores. Después, reindexad el asistente:
-#   curl -X POST localhost:8080/api/rag/ingesta
+#   curl -u "direccion:$DIRECCION_PASSWORD" -X POST localhost:8080/api/rag/ingesta
 # ---------------------------------------------------------------------
 set -euo pipefail
 
@@ -109,4 +109,4 @@ $$;
 SELECT periodo_id, count(DISTINCT grupo_id) AS grupos, count(*) AS registros
 FROM staging.observacion GROUP BY 1 ORDER BY 1;
 EOSQL
-echo "Listo. Reindexa el asistente con: curl -X POST localhost:8080/api/rag/ingesta"
+echo "Listo. Reindexa el asistente con: curl -u \"direccion:\$DIRECCION_PASSWORD\" -X POST localhost:8080/api/rag/ingesta"

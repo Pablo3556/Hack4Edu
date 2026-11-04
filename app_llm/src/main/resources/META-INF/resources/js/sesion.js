@@ -24,7 +24,7 @@ const PERMISOS = {
   }
 };
 
-const sesion = { usuario: null, rol: null, permisos: null };
+const sesion = { usuario: null, rol: null, permisos: null, centro: null, grupo: null };
 
 const irALogin = () => { location.href = "/login.html"; };
 
@@ -51,6 +51,8 @@ async function cargarSesion() {
   }
   sesion.usuario = datos.usuario;
   sesion.rol = datos.rol;
+  sesion.centro = datos.centro ?? null; // centro y grupo asignados (null = todos)
+  sesion.grupo = datos.grupo ?? null;
   sesion.permisos = PERMISOS[datos.rol];
   if (!sesion.permisos) {
     document.querySelector("main").replaceChildren(
@@ -61,6 +63,8 @@ async function cargarSesion() {
   $("sesionUsuario").textContent = sesion.usuario;
   $("sesionRol").textContent = sesion.permisos.nombre;
   $("sesion").hidden = false;
+  // La comparativa entre centros es solo de administración (el servidor la deniega a los demás)
+  $("panelCentros").hidden = sesion.rol !== "administracion";
   document.body.classList.toggle("solo-consulta", !!sesion.permisos.soloConsulta);
 
   // Pestañas: solo las del rol

@@ -9,7 +9,7 @@ import java.util.Map;
 public class ErrorAplicacion extends RuntimeException {
 
     public enum Tipo {
-        PETICION_INVALIDA, NO_ENCONTRADO, CONFLICTO, DEMASIADO_GRANDE, NO_PROCESABLE, NO_DISPONIBLE
+        PETICION_INVALIDA, PROHIBIDO, NO_ENCONTRADO, CONFLICTO, DEMASIADO_GRANDE, NO_PROCESABLE, NO_DISPONIBLE
     }
 
     private final Tipo tipo;
@@ -32,6 +32,11 @@ public class ErrorAplicacion extends RuntimeException {
 
     public static ErrorAplicacion peticionInvalida(String mensaje) {
         return new ErrorAplicacion(Tipo.PETICION_INVALIDA, mensaje, Map.of());
+    }
+
+    /** El usuario tiene sesión, pero ese centro o grupo no es de su ámbito. */
+    public static ErrorAplicacion prohibido(String mensaje) {
+        return new ErrorAplicacion(Tipo.PROHIBIDO, mensaje, Map.of());
     }
 
     public static ErrorAplicacion noEncontrado(String mensaje) {

@@ -75,6 +75,11 @@ public class GestionarMedidas {
         return unica(id);
     }
 
+    /** Una medida con su valoración. */
+    public Medidas.Medida obtener(int id) {
+        return unica(id);
+    }
+
     public Medidas.Medida cambiarEstado(int id, String estado) {
         if (estado == null || !Medidas.ESTADOS.contains(estado)) {
             throw ErrorAplicacion.peticionInvalida("Estado no válido (en_curso, finalizada o descartada).");

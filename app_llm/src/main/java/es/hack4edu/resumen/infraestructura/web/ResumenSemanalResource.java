@@ -1,6 +1,6 @@
 package es.hack4edu.resumen.infraestructura.web;
 
-import es.hack4edu.compartido.dominio.Ambito;
+import es.hack4edu.compartido.infraestructura.web.ControlAcceso;
 import es.hack4edu.resumen.aplicacion.GenerarResumenSemanal;
 import es.hack4edu.resumen.dominio.ResumenSemanal;
 import io.smallrye.common.annotation.Blocking;
@@ -22,8 +22,11 @@ public class ResumenSemanalResource {
     @Inject
     GenerarResumenSemanal resumenSemanal;
 
+    @Inject
+    ControlAcceso acceso;
+
     @GET
     public ResumenSemanal.Resumen resumen(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
-        return resumenSemanal.resumen(Ambito.de(centro, grupo));
+        return resumenSemanal.resumen(acceso.comprobar(centro, grupo));
     }
 }
