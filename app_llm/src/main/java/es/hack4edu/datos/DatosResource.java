@@ -7,20 +7,19 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static es.hack4edu.datos.Consultas.decimal;
+import static es.hack4edu.datos.Consultas.entero;
+import static es.hack4edu.datos.Consultas.error;
 
 /**
  * API de solo lectura para la interfaz web. Lee únicamente las vistas agregadas del
@@ -70,7 +69,7 @@ public class DatosResource {
     }
 
     @Inject
-    DataSource dataSource;
+    Consultas consultas;
 
     /** Centros y grupos para los selectores. */
     @GET
@@ -78,7 +77,7 @@ public class DatosResource {
     public List<Centro> ambitos() {
         record FilaAmbito(int centroId, String centro, String tipo, int grupoId, String grupo) {
         }
-        List<FilaAmbito> filas = consultar("""
+        List<FilaAmbito> filas = consultas.lista("""
                 SELECT c.id AS centro_id, c.nombre AS centro, c.tipo_centro, g.id AS grupo_id, g.nombre AS grupo
                 FROM analitica.centro c
                 JOIN analitica.grupo g ON g.centro_id = c.id
@@ -98,9 +97,9 @@ public class DatosResource {
     @Path("/resumen")
     public ResumenAmbito resumen(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
         Filtro f = filtro(centro, grupo);
-        List<Resumen> ambito = consultar("SELECT * FROM analitica.vw_resumen WHERE " + f.sql(), f.params(),
+        List<Resumen> ambito = consultas.lista("SELECT * FROM analitica.vw_resumen WHERE " + f.sql(), f.params(),
                 DatosResource::resumen);
-        List<Resumen> global = consultar("SELECT * FROM analitica.vw_resumen WHERE ambito = 'global'", List.of(),
+        List<Resumen> global = consultas.lista("SELECT * FROM analitica.vw_resumen WHERE ambito = 'global'", List.of(),
                 DatosResource::resumen);
         if (ambito.isEmpty()) {
             throw error(Response.Status.NOT_FOUND,
@@ -113,7 +112,7 @@ public class DatosResource {
     @GET
     @Path("/centros")
     public List<Resumen> centros() {
-        return consultar("SELECT * FROM analitica.vw_resumen WHERE ambito = 'centro' ORDER BY centro_id",
+        return consultas.lista("SELECT * FROM analitica.vw_resumen WHERE ambito = 'centro' ORDER BY centro_id",
                 List.of(), DatosResource::resumen);
     }
 
@@ -122,7 +121,7 @@ public class DatosResource {
     @Path("/prioridades")
     public List<Prioridad> prioridades(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
         Filtro f = filtro(centro, grupo);
-        return consultar("SELECT * FROM analitica.vw_prioridades WHERE " + f.sql() + " ORDER BY puesto, factor",
+        return consultas.lista("SELECT * FROM analitica.vw_prioridades WHERE " + f.sql() + " ORDER BY puesto, factor",
                 f.params(), rs -> new Prioridad(entero(rs, "puesto"), rs.getString("factor"),
                         rs.getString("factor_nombre"), rs.getString("dimension_reto"), rs.getString("nivel_peor"),
                         decimal(rs, "pct_peor"), decimal(rs, "nota_peor"), rs.getString("nivel_mejor"),
@@ -136,7 +135,7 @@ public class DatosResource {
     @Path("/brechas")
     public List<Brecha> brechas(@QueryParam("centro") Integer centro, @QueryParam("grupo") Integer grupo) {
         Filtro f = filtro(centro, grupo);
-        return consultar("SELECT * FROM analitica.vw_factor_brecha WHERE " + f.sql()
+        return consultas.lista("SELECT * FROM analitica.vw_factor_brecha WHERE " + f.sql()
                         + " ORDER BY tipo, brecha_estandarizada DESC NULLS LAST", f.params(),
                 rs -> new Brecha(rs.getString("factor"), rs.getString("factor_nombre"), rs.getString("tipo"),
                         rs.getString("dimension_reto"), rs.getString("nivel_peor"), rs.getString("nivel_mejor"),
@@ -147,7 +146,7 @@ public class DatosResource {
     @GET
     @Path("/factores")
     public List<Factor> factores() {
-        return consultar("""
+        return consultas.lista("""
                 SELECT codigo, nombre, tipo, dimension_reto, descripcion
                 FROM analitica.factor
                 ORDER BY tipo, accionabilidad DESC NULLS LAST, nombre""", List.of(),
@@ -164,7 +163,7 @@ public class DatosResource {
         List<Object> params = new ArrayList<>();
         params.add(codigo);
         params.addAll(f.params());
-        return consultar("SELECT * FROM analitica.vw_factor_nivel WHERE factor = ? AND " + f.sql() + " ORDER BY orden",
+        return consultas.lista("SELECT * FROM analitica.vw_factor_nivel WHERE factor = ? AND " + f.sql() + " ORDER BY orden",
                 params, rs -> new NivelFactor(entero(rs, "orden"), rs.getString("nivel"), entero(rs, "n"),
                         decimal(rs, "pct_ambito"), decimal(rs, "nota_media"), decimal(rs, "dif_vs_media_ambito"),
                         decimal(rs, "asistencia_media"), decimal(rs, "pct_sin_dato")));
@@ -174,7 +173,7 @@ public class DatosResource {
     @GET
     @Path("/calidad")
     public List<Calidad> calidad() {
-        return consultar("""
+        return consultas.lista("""
                 SELECT columna, n_ausentes, pct_ausentes, n_total
                 FROM analitica.vw_calidad_datos
                 ORDER BY n_ausentes DESC, columna""", List.of(),
@@ -186,11 +185,11 @@ public class DatosResource {
     // Utilidades
     // -----------------------------------------------------------------
 
-    record Filtro(String sql, List<Object> params) {
+    public record Filtro(String sql, List<Object> params) {
     }
 
     /** Traduce los parámetros a la condición de ámbito de las vistas. */
-    static Filtro filtro(Integer centro, Integer grupo) {
+    public static Filtro filtro(Integer centro, Integer grupo) {
         if (grupo != null) {
             if (centro == null) {
                 throw error(Response.Status.BAD_REQUEST, "Para elegir un grupo hay que indicar también el centro");
@@ -203,29 +202,6 @@ public class DatosResource {
         return new Filtro("ambito = 'global'", List.of());
     }
 
-    @FunctionalInterface
-    private interface Fila<T> {
-        T leer(ResultSet rs) throws SQLException;
-    }
-
-    private <T> List<T> consultar(String sql, List<Object> params, Fila<T> fila) {
-        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            List<T> filas = new ArrayList<>();
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    filas.add(fila.leer(rs));
-                }
-            }
-            return filas;
-        } catch (SQLException e) {
-            throw error(Response.Status.SERVICE_UNAVAILABLE,
-                    "No se puede leer la base de datos: " + e.getMessage());
-        }
-    }
-
     private static Resumen resumen(ResultSet rs) throws SQLException {
         return new Resumen(rs.getString("ambito"), entero(rs, "centro_id"), rs.getString("centro"),
                 rs.getString("tipo_centro"), entero(rs, "grupo_id"), rs.getString("grupo"), entero(rs, "n_alumnos"),
@@ -234,20 +210,5 @@ public class DatosResource {
                 decimal(rs, "pct_asistencia_baja"), decimal(rs, "horas_estudio_media"), decimal(rs, "tutorias_media"),
                 decimal(rs, "pct_recursos_bajos"), decimal(rs, "pct_calidad_docente_baja"),
                 decimal(rs, "pct_extraescolares"), decimal(rs, "pct_implicacion_familiar_baja"));
-    }
-
-    private static Double decimal(ResultSet rs, String columna) throws SQLException {
-        BigDecimal v = rs.getBigDecimal(columna);
-        return v == null ? null : v.doubleValue();
-    }
-
-    private static Integer entero(ResultSet rs, String columna) throws SQLException {
-        Object v = rs.getObject(columna);
-        return v instanceof Number n ? n.intValue() : null;
-    }
-
-    private static WebApplicationException error(Response.Status estado, String mensaje) {
-        return new WebApplicationException(Response.status(estado).type(MediaType.APPLICATION_JSON)
-                .entity(Map.of("error", mensaje)).build());
     }
 }

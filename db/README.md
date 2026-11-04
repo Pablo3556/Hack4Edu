@@ -29,8 +29,8 @@ set -a; source ../.env; set +a
 
 | Esquema | Contenido | Quién accede |
 |---|---|---|
-| `staging` | Filas por alumno: `spf_raw` (CSV tal cual, se vacía tras cargar) y `alumno_spf` (tipado, en castellano) | Solo `escuela_admin` |
-| `analitica` | Catálogos (`centro`, `grupo`, `factor`, `factor_nivel`) y vistas agregadas | `app_lector`, solo lectura |
+| `staging` | Filas por alumno: `spf_raw` (CSV tal cual, se vacía tras cargar), `alumno_spf` (foto actual: último periodo de cada grupo), `observacion` (histórico por periodo) y `carga` (auditoría) | `escuela_admin`; `app_ingesta` solo inserta en `spf_raw` y ejecuta los procedimientos de ingesta |
+| `analitica` | Catálogos (`centro`, `grupo`, `factor`, `factor_nivel`, `periodo`) y vistas agregadas | `app_lector`, solo lectura |
 | `ia` | `embeddings`: fichas agregadas + vector para el RAG (V6) | `app_lector`, lectura y escritura |
 
 ## Vistas para la app
@@ -44,6 +44,25 @@ Todas tienen la columna `ambito` (`global`, `centro` o `grupo`) con `centro_id` 
 | `vw_factor_brecha` | Brecha entre el nivel con peor y mejor nota, en puntos y en desviaciones típicas |
 | `vw_prioridades` | Ranking de factores accionables: `prioridad = brecha × % en el peor nivel × accionabilidad`, con magnitud, fiabilidad, palanca y aviso |
 | `vw_calidad_datos` | Valores ausentes por columna y datos de la última carga |
+| `vw_evolucion` | Indicadores por periodo, centro y grupo (con desviación típica para las alertas) |
+| `vw_factor_nivel_sd` | Nota media y desviación típica por nivel de factor (intervalo del simulador) |
+| `vw_cargas` | Auditoría de importaciones: archivo, usuario, fecha, recuentos, estado y resultado |
+
+## Ingesta de docentes (V7)
+
+```
+CSV ──(app: valida y normaliza)──▶ staging.spf_raw (carga_id) ──CALL staging.transformar_ingesta──▶
+      staging.observacion (grupo, periodo) ──refrescar_foto_grupo──▶ staging.alumno_spf ──▶ vistas
+```
+
+- `staging.spf_tipar(carga)` contiene el tipado que antes estaba dentro de `transformar_spf`. Lo usan la
+  carga de Kaggle y la de docentes, así que las reglas son las mismas.
+- `transformar_spf` (Kaggle) guarda la línea base en `observacion` (periodo 0, sintético) y conserva los
+  datos de docentes: después de recargar el CSV, cada grupo sigue mostrando su último periodo importado.
+- Una nueva carga del mismo grupo y periodo sustituye a la anterior (la anterior queda como `sustituida`).
+- La ingesta de docentes nunca guarda `dificultad_aprendizaje` y toma la titularidad del centro elegido.
+- `abrir_carga`, `actualizar_carga` y `transformar_ingesta` son `SECURITY DEFINER` con `search_path` fijo:
+  son lo único que `app_ingesta` puede ejecutar.
 
 Ejemplo:
 
@@ -72,7 +91,7 @@ ORDER BY puesto;
 
 ## Reglas para nuevas migraciones
 
-- No modifiquéis una migración ya aplicada: Flyway detecta el cambio de checksum y la app no arranca. Cread una nueva `V6__...sql`.
+- No modifiquéis una migración ya aplicada: Flyway detecta el cambio de checksum y la app no arranca. Cread una nueva `V8__...sql`.
 - En las vistas de `analitica` no llaméis a funciones de `staging`: PostgreSQL comprueba el permiso EXECUTE con el usuario que consulta (`app_lector`), y fallaría.
 
 ## Reiniciar desde cero

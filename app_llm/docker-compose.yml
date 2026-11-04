@@ -14,6 +14,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cambia-superusuario}
       ESCUELA_ADMIN_PASSWORD: ${ESCUELA_ADMIN_PASSWORD:-cambia-admin}
       APP_LECTOR_PASSWORD: ${APP_LECTOR_PASSWORD:-cambia-lector}
+      APP_INGESTA_PASSWORD: ${APP_INGESTA_PASSWORD:-cambia-ingesta}
     ports:
       - "5432:5432"
     volumes:

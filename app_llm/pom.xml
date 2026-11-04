@@ -63,6 +63,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
+        <!-- Usuarios de la app (docentes) para la importación de CSV y su auditoría -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-elytron-security-properties-file</artifactId>
+        </dependency>
         <!-- RAG: Llama (chat + embeddings) servido por Ollama y vectores en pgvector -->
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>

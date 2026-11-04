@@ -124,6 +124,44 @@
   th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--linea); }
   th { color: var(--suave); font-weight: 500; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  /* Pestañas */
+  .pestanas { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--linea); }
+  .pestanas button {
+    border: 0; background: transparent; font: inherit; color: var(--suave); padding: 8px 14px; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .pestanas button[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--acento); font-weight: 600; }
+  [hidden] { display: none !important; }
+
+  /* Análisis y evolución */
+  h3 { font-size: 15px; margin: 18px 0 8px; }
+  .boton.secundario { background: var(--panel); color: var(--acento); border-color: var(--acento); }
+  .boton.peligro { background: var(--panel); color: var(--mal); border-color: var(--linea); }
+  a.enlace { color: var(--acento); font-size: 14px; }
+  .tabla-scroll { overflow-x: auto; max-width: 100%; }
+  .kpis.compactos { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin: 12px 0; }
+  .kpis.compactos .valor { font-size: 22px; }
+  .caja { border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-top: 10px; }
+  .caja ul { margin: 4px 0 0; padding-left: 18px; }
+  .caja.bloqueo { background: color-mix(in srgb, var(--mal) 12%, var(--panel)); color: var(--mal); }
+  .caja.ok { background: color-mix(in srgb, var(--bien) 12%, var(--panel)); color: var(--bien); }
+  .caja.info { background: var(--acento-suave); color: var(--texto); }
+  .estado-col { font-size: 11px; padding: 1px 8px; border-radius: 999px; white-space: nowrap; background: var(--acento-suave); color: var(--acento); }
+  .estado-col.IDENTIFICATIVA, .estado-col.SENSIBLE { background: var(--aviso-fondo); color: var(--aviso); }
+  .estado-col.SIN_ASIGNAR, .estado-col.DERIVADA { background: var(--fondo); color: var(--suave); }
+  select.duplicado { border-color: var(--mal); }
+  .alertas { display: grid; gap: 10px; }
+  .alerta { border: 1px solid var(--linea); border-left: 4px solid var(--aviso); border-radius: 8px; padding: 10px 14px; background: var(--panel); }
+  .alerta.ATENCION { border-left-color: var(--mal); }
+  .alerta.POSITIVA { border-left-color: var(--bien); }
+  .alerta .titulo { font-weight: 600; }
+  .alerta dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 6px 0 0; font-size: 13px; color: var(--suave); }
+  .alerta dt { font-weight: 500; }
+  .alerta dd { margin: 0; }
+  .aviso.destacado { font-size: 14px; font-weight: 600; margin: 0 0 12px; }
+  input[type="range"] { accent-color: var(--acento); vertical-align: middle; }
+  @media (max-width: 600px) { header, main, footer { padding-left: 16px; padding-right: 16px; } }
+
   footer { max-width: 1200px; margin: 0 auto; padding: 0 24px 40px; font-size: 13px; color: var(--suave); }
 </style>
 </head>
@@ -133,6 +171,10 @@
   <h1>La escuela que aprende de sus datos</h1>
   <p class="sub">Indicadores agregados y prioridades de actuación. Ningún dato identifica a un alumno: cada cifra sale de grupos de al menos 10.</p>
   <span class="etiqueta">Demo con datos sintéticos (Kaggle · Student Performance Factors) y centros ficticios</span>
+  <nav class="pestanas" role="tablist" aria-label="Secciones">
+    <button type="button" role="tab" id="tabPanel" aria-selected="true" aria-controls="vistaPanel">Panel general</button>
+    <button type="button" role="tab" id="tabAnalisis" aria-selected="false" aria-controls="vistaAnalisis">Análisis y evolución</button>
+  </nav>
 </header>
 
 <main>
@@ -147,6 +189,7 @@
     <span class="ambito-actual" id="ambitoActual" aria-live="polite"></span>
   </div>
 
+  <div id="vistaPanel" role="tabpanel" aria-labelledby="tabPanel">
   <section class="kpis" id="kpis" aria-label="Indicadores principales"></section>
 
   <div class="rejilla">
@@ -210,6 +253,71 @@
       <p class="nota">Valores ausentes en origen (no cuentan en ningún nivel del factor).</p>
       <div id="calidad"></div>
     </section>
+  </div>
+  </div>
+
+  <div id="vistaAnalisis" role="tabpanel" aria-labelledby="tabAnalisis" hidden>
+    <div class="rejilla">
+      <section class="panel ancho-12" aria-labelledby="tituloImportar">
+        <div class="cabecera">
+          <div>
+            <h2 id="tituloImportar">Importar datos del grupo</h2>
+            <p class="nota">CSV con notas y asistencia (y, si los tienes, otros factores). Primero se valida y ves una vista previa: no se guarda nada hasta que confirmes. Se pedirá el usuario de docente.</p>
+          </div>
+          <a class="enlace" href="/api/ingesta/plantilla" download>Descargar plantilla CSV</a>
+        </div>
+        <p class="nota" id="importDestino"></p>
+        <div class="fila">
+          <label>Periodo <select id="selPeriodo"></select></label>
+          <label class="boton secundario" for="archivoCsv">Elegir archivo CSV</label>
+          <input type="file" id="archivoCsv" accept=".csv,text/csv" hidden>
+          <span class="nota" id="nombreArchivo">Ningún archivo elegido</span>
+          <button class="boton" id="btnValidar" type="button" disabled>Validar archivo</button>
+          <span class="nota" id="estadoImport" aria-live="polite"></span>
+        </div>
+        <div id="vistaPrevia" aria-live="polite"></div>
+        <details>
+          <summary>Últimas importaciones</summary>
+          <div id="historial"></div>
+        </details>
+      </section>
+
+      <section class="panel ancho-12" aria-labelledby="tituloEvolucion">
+        <div class="cabecera">
+          <div>
+            <h2 id="tituloEvolucion">Evolución del grupo</h2>
+            <p class="nota" id="notaEvolucion">Indicadores agregados por periodo.</p>
+          </div>
+          <span class="chip" id="ultimaAct"></span>
+        </div>
+        <section class="kpis compactos" id="kpisEvolucion" aria-label="Comparación entre periodos"></section>
+        <div class="rejilla">
+          <div class="ancho-7"><div class="grafica"><canvas id="gEvolucion" aria-label="Evolución de nota y asistencia por periodo"></canvas></div></div>
+          <div class="ancho-5 tabla-scroll" id="tablaEvolucion"></div>
+        </div>
+        <h3>Alertas tempranas</h3>
+        <p class="nota" id="mensajeDatos"></p>
+        <div class="alertas" id="alertas"></div>
+        <div class="aviso" id="avisoEvolucion"></div>
+      </section>
+
+      <section class="panel ancho-12" aria-labelledby="tituloSimulador">
+        <h2 id="tituloSimulador">Simulador: ¿qué pasaría si…?</h2>
+        <p class="nota">Cambia cómo se reparte el alumnado entre los niveles de un factor sobre el que el centro puede actuar y mira qué nota media sería coherente con lo observado en los datos.</p>
+        <div class="aviso destacado" role="note">Esta simulación representa asociaciones observadas en los datos históricos disponibles. No constituye una predicción ni demuestra causalidad.</div>
+        <div class="fila">
+          <label>Factor <select id="simFactor"></select></label>
+          <label>De <select id="simDesde"></select></label>
+          <label>a <select id="simHacia"></select></label>
+          <label>Alumnado de ese nivel que cambia <input type="range" id="simPct" min="0" max="100" step="10" value="100"> <output id="simPctTxt" for="simPct">100 %</output></label>
+        </div>
+        <section class="kpis compactos" id="simKpis" aria-label="Resultado de la simulación"></section>
+        <div class="rejilla">
+          <div class="ancho-7"><div class="grafica"><canvas id="gSimulador" aria-label="Distribución actual y del escenario por nivel"></canvas></div></div>
+          <div class="ancho-5" id="simTexto" aria-live="polite"></div>
+        </div>
+      </section>
+    </div>
   </div>
 </main>
 
@@ -640,6 +748,7 @@ async function preguntar() {
 function cargarAmbito() {
   $("ambitoActual").textContent = "Viendo: " + nombreAmbito();
   sugerencias();
+  if (window.alCambiarAmbito) window.alCambiarAmbito();
   return Promise.all([cargarResumen(), cargarPrioridades(), cargarFactor(), cargarEquidad(), cargarCentros()]);
 }
 
@@ -679,5 +788,6 @@ async function iniciar() {
 
 iniciar();
 </script>
+<script src="/analisis.js"></script>
 </body>
 </html>
