@@ -65,6 +65,8 @@ async function cargarSesion() {
   $("sesion").hidden = false;
   // La comparativa entre centros es solo de administración (el servidor la deniega a los demás)
   $("panelCentros").hidden = sesion.rol !== "administracion";
+  // Las estadísticas del profesorado también son solo de administración
+  $("panelProgreso").hidden = sesion.rol !== "administracion";
   document.body.classList.toggle("solo-consulta", !!sesion.permisos.soloConsulta);
 
   // Pestañas: solo las del rol

@@ -37,9 +37,10 @@ public class DireccionResource {
         return semaforo.semaforo(centro);
     }
 
-    /** Progreso del alumnado frente a lo esperado, por grupo y por docente del centro. */
+    /** Progreso del alumnado frente a lo esperado, por grupo y por docente del centro. Solo administración. */
     @GET
     @Path("/progreso-docente")
+    @RolesAllowed("administracion")
     public ProgresoDocente.Panel progresoDocente(@QueryParam("centro") Integer centro) {
         acceso.comprobar(centro, null);
         return progreso.progreso(centro);

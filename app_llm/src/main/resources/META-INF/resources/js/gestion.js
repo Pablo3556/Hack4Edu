@@ -132,6 +132,8 @@ async function cargarDireccion() {
     $("tablaSemaforo").replaceChildren(el("div", { class: "error" }, "No se pudo cargar el panel: " + e.message));
     $("tablaEquidad").replaceChildren();
   }
+  // Las estadísticas del profesorado son solo de administración (el servidor las deniega a los demás)
+  if (sesion.rol !== "administracion") return;
   try {
     const p = await api("/api/direccion/progreso-docente?centro=" + estado.centro);
     if (!vigente("direccion", t)) return;
