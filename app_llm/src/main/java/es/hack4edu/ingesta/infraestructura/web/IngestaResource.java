@@ -6,6 +6,7 @@ import es.hack4edu.ingesta.dominio.Importacion;
 import io.quarkus.logging.Log;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -114,8 +115,13 @@ public class IngestaResource {
         return importacion.historial(identidad.hasRole("direccion"), usuario());
     }
 
+    /**
+     * Pública: no contiene datos y se descarga con un enlace normal, donde el navegador no pide la
+     * contraseña (con @RolesAllowed el enlace fallaba con 401 antes de iniciar sesión).
+     */
     @GET
     @Path("/plantilla")
+    @PermitAll
     @Produces("text/csv")
     public Response plantilla() {
         return Response.ok(importacion.plantilla().getBytes(StandardCharsets.UTF_8))
