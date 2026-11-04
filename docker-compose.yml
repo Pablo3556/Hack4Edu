@@ -1,0 +1,40 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: escuela
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}
+      ESCUELA_ADMIN_PASSWORD: ${ESCUELA_ADMIN_PASSWORD:?define ESCUELA_ADMIN_PASSWORD en .env}
+      APP_LECTOR_PASSWORD: ${APP_LECTOR_PASSWORD:?define APP_LECTOR_PASSWORD en .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d escuela"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Aplica las migraciones sin necesidad de arrancar la app.
+  # La app Quarkus también las aplica al arrancar (quarkus.flyway.migrate-at-start);
+  # ambos comparten la tabla flyway_schema_history, así que da igual cuál vaya primero.
+  migraciones:
+    image: flyway/flyway:10
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      -url=jdbc:postgresql://db:5432/escuela
+      -user=escuela_admin
+      -password=${ESCUELA_ADMIN_PASSWORD}
+      -locations=filesystem:/flyway/sql
+      -connectRetries=10
+      migrate
+    volumes:
+      - ./app_llm/src/main/resources/db/migration:/flyway/sql:ro
+
+volumes:
+  pgdata:
