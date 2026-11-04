@@ -11,8 +11,7 @@ Desde la raíz del repo:
 
 ```bash
 cp .env.example .env                       # y cambia las contraseñas
-docker compose up -d db                    # crea roles y pgvector (solo la primera vez)
-docker compose up migraciones             # aplica las migraciones (o arranca la app Quarkus)
+docker compose up -d --build              # contenedor único: crea roles y pgvector la primera vez y la app aplica las migraciones
 ./scripts/cargar_kaggle.sh                 # carga el CSV (se puede repetir)
 ```
 

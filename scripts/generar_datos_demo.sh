@@ -20,7 +20,7 @@ set -euo pipefail
 if [[ -n "${PSQL_URL:-}" ]]; then
   PSQL=(psql "$PSQL_URL")
 else
-  PSQL=(docker compose exec -T db psql -U escuela_admin -d escuela)
+  PSQL=(docker compose exec -T app psql -U escuela_admin -d escuela)
 fi
 
 if [[ "${1:-}" == "limpiar" ]]; then

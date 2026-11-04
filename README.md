@@ -8,7 +8,8 @@ agregados, sin decisiones automáticas sobre alumnos y con todo ejecutándose en
 
 | Ruta | Contenido |
 |---|---|
-| `app_llm/` | Aplicación Quarkus (API REST, web, asistente con LangChain4j + Ollama) y su `Dockerfile` |
+| `Dockerfile` · `docker-compose.yml` · `docker/` | Contenedor único (PostgreSQL + aplicación) y su script de arranque |
+| `app_llm/` | Aplicación Quarkus (API REST, web, asistente con LangChain4j + Ollama) |
 | `app_llm/src/main/java/es/hack4edu/` | Código en **arquitectura hexagonal**, un paquete por módulo: ver [docs/arquitectura.md](docs/arquitectura.md) |
 | `app_llm/src/main/resources/META-INF/resources/` | Interfaz web: `index.html`, `css/` y `js/` |
 | `app_llm/src/main/resources/db/migration/` | Migraciones Flyway: esquema, vistas agregadas y permisos |
@@ -16,48 +17,45 @@ agregados, sin decisiones automáticas sobre alumnos y con todo ejecutándose en
 | `datos/` | Datasets de entrada (Student Performance Factors, Kaggle, CC0) y CSV de ejemplo |
 | `scripts/` | Carga de datos |
 | `docs/` | Documentación de arquitectura |
-| `docker-compose.yml` | Toda la pila: PostgreSQL + pgvector, Flyway, Ollama y la aplicación |
 
 ## Arranque con Docker
 
+Un **único contenedor** con PostgreSQL 16 + pgvector y la aplicación. Los modelos de lenguaje los sirve el
+**Ollama del equipo**, que no va dentro de la imagen (pesa más de 7 GB).
+
 ```bash
-cp .env.example .env                              # cambia las contraseñas
-docker compose --profile datos up -d --build      # pila completa + datos de demostración
+cp .env.example .env                  # cambia las contraseñas
+ollama pull llama3.2:3b && ollama pull embeddinggemma    # en tu equipo, una vez
+docker compose up -d --build          # → http://localhost:8080
 ```
 
-La primera vez tarda: construye la imagen de la app y Ollama descarga los modelos (~3 GB; puedes seguirlo con
-`docker compose logs -f ollama-modelos`). Después abre **http://localhost:8080**.
+La primera vez, si la base está vacía, el contenedor carga el dataset de demostración y reindexa el asistente
+(`CARGAR_DATOS=true`; ponlo a `false` en `.env` para evitarlo). Si Ollama no está disponible en ese momento,
+la app funciona igual y el asistente se indexa después con `curl -X POST localhost:8080/api/rag/ingesta`.
 
-| Servicio | Qué hace |
+| Qué | Dónde |
 |---|---|
-| `db` | PostgreSQL 16 + pgvector. Datos en el volumen `pgdata` |
-| `migraciones` | Aplica las migraciones de Flyway y termina |
-| `ollama` | Servidor de modelos en local |
-| `ollama-modelos` | Descarga los modelos la primera vez y termina |
-| `app` | La aplicación (imagen construida desde `app_llm/Dockerfile`) |
-| `carga-datos` · `indexar-asistente` | Solo con `--profile datos`: cargan el CSV de Kaggle y reindexan el asistente |
-
-Sin el perfil `datos` arrancan solo los cuatro primeros y la aplicación; los datos se cargan después con
-`docker compose --profile datos up carga-datos indexar-asistente`.
+| Aplicación | http://localhost:8080 |
+| PostgreSQL | `127.0.0.1:5432` (solo desde este equipo) |
+| Datos | volumen `pgdata` (sobrevive a `docker compose down`) |
+| Migraciones | las aplica la app al arrancar; a mano: `docker compose --profile migraciones run --rm migraciones` |
+| Ollama | `OLLAMA_URL` (por defecto `http://host.docker.internal:11434`, el del equipo) |
 
 ```bash
-docker compose ps                    # estado de cada servicio
-docker compose logs -f app           # logs de la aplicación
+docker compose logs -f app           # logs de la base de datos y de la aplicación
 docker compose down                  # parar (conserva los datos)
-docker compose down -v               # parar y borrar base de datos y modelos
+docker compose down -v               # parar y borrar la base de datos
+bash scripts/generar_datos_demo.sh   # añade 4 trimestres sintéticos a los 36 grupos
 ```
 
-**Ollama en macOS:** el contenedor no usa la GPU y es lento. Si tienes Ollama instalado, es mejor usar el nativo:
-pon `OLLAMA_URL=http://host.docker.internal:11434` en `.env` y arranca con
-`docker compose up -d --scale ollama=0 --scale ollama-modelos=0`.
+> `scripts/cargar_kaggle.sh` **sustituye** la línea base y borra los trimestres sintéticos y las importaciones.
+> Si lo ejecutas de nuevo, vuelve a lanzar `generar_datos_demo.sh`.
 
 ## Desarrollo local (sin construir la imagen)
 
 ```bash
 cp .env.example .env
-docker compose up -d db migraciones               # solo la base de datos
-./scripts/cargar_kaggle.sh                        # datos de demostración
-ollama pull llama3.2:3b && ollama pull embeddinggemma
+APP_PUERTO=8081 docker compose up -d --build     # la base de datos queda en 127.0.0.1:5432
 cd app_llm && set -a && source ../.env && set +a && ./mvnw quarkus:dev
 ./mvnw test                                       # tests (no necesitan base de datos)
 ```
@@ -175,6 +173,6 @@ El rol `app_ingesta` necesita superusuario, así que en un volumen existente hay
 **antes** de arrancar la app (si no, la migración V7 se detiene con un mensaje que lo explica):
 
 ```bash
-docker compose up -d db
-docker compose exec db bash /docker-entrypoint-initdb.d/01-rol-ingesta.sh
+docker compose up -d
+docker compose exec app bash /docker-entrypoint-initdb.d/01-rol-ingesta.sh
 ```

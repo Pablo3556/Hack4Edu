@@ -34,7 +34,7 @@ COLUMNAS="hours_studied, attendance, parental_involvement, access_to_resources, 
 if [[ -n "${PSQL_URL:-}" ]]; then
   PSQL=(psql "$PSQL_URL")
 else
-  PSQL=(docker compose exec -T db psql -U escuela_admin -d escuela)
+  PSQL=(docker compose exec -T app psql -U escuela_admin -d escuela)
 fi
 
 "${PSQL[@]}" -v ON_ERROR_STOP=1 --single-transaction \

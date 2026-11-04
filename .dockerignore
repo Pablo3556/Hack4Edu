@@ -1,0 +1,13 @@
+# El contexto de build es la raíz del repositorio: solo se copian app_llm/src, app_llm/pom.xml,
+# db/init, scripts, docker y el dataset principal.
+.git
+.idea
+.vscode
+.env
+**/.DS_Store
+**/target
+app_llm/.idea
+app_llm/.codex
+datos/ejemplos
+docs
+*.md

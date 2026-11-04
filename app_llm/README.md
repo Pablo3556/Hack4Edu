@@ -8,7 +8,7 @@ Documentación general en el [README de la raíz](../README.md) y estructura del
 ./mvnw quarkus:dev                 # desarrollo con recarga (necesita la base de datos: ver README de la raíz)
 ./mvnw test                        # tests unitarios (no necesitan base de datos)
 ./mvnw package                     # genera target/quarkus-app/
-docker build -t hack4edu-app .     # imagen (mejor: docker compose up --build desde la raíz)
+# imagen única (PostgreSQL + app): desde la raíz, docker compose up -d --build
 ```
 
 ## Variables de entorno

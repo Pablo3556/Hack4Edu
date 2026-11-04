@@ -1,50 +1,61 @@
 # ---------------------------------------------------------------------
 # Hack4Edu · La escuela que aprende de sus datos
 #
-#   cp .env.example .env            (y cambia las contraseñas)
-#   docker compose up -d --build    → PostgreSQL + migraciones + Ollama + aplicación
-#   docker compose --profile datos up -d --build
-#                                   → lo anterior + carga del dataset y reindexado del asistente
+# Un único contenedor con PostgreSQL (pgvector) y la aplicación.
+#   cp .env.example .env              (y cambia las contraseñas)
+#   docker compose up -d --build      → http://localhost:8080
 #
-# Aplicación: http://localhost:8080
-# Solo para desarrollo (sin construir la imagen): docker compose up -d db migraciones
-# y después ./mvnw quarkus:dev dentro de app_llm.
+# Los modelos de lenguaje los sirve el Ollama del equipo (OLLAMA_URL), que no va dentro.
+# Los datos viven en el volumen "pgdata". Migraciones: las aplica la app al arrancar.
 # ---------------------------------------------------------------------
 name: hack4edu
 
 services:
-  # ---- Base de datos --------------------------------------------------
-  db:
-    image: pgvector/pgvector:pg16
+  app:
+    build: .
+    image: hack4edu
     environment:
-      POSTGRES_DB: escuela
-      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}
       ESCUELA_ADMIN_PASSWORD: ${ESCUELA_ADMIN_PASSWORD:?define ESCUELA_ADMIN_PASSWORD en .env}
       APP_LECTOR_PASSWORD: ${APP_LECTOR_PASSWORD:?define APP_LECTOR_PASSWORD en .env}
       APP_INGESTA_PASSWORD: ${APP_INGESTA_PASSWORD:?define APP_INGESTA_PASSWORD en .env}
+      DOCENTE_PASSWORD: ${DOCENTE_PASSWORD:?define DOCENTE_PASSWORD en .env}
+      DIRECCION_PASSWORD: ${DIRECCION_PASSWORD:?define DIRECCION_PASSWORD en .env}
+      # Carga el dataset de demostración (y reindexa el asistente) la primera vez, si la base está vacía
+      CARGAR_DATOS: ${CARGAR_DATOS:-true}
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama3.2:3b}
+      OLLAMA_MODELO_RAPIDO: ${OLLAMA_MODELO_RAPIDO:-llama3.2:1b}
+      OLLAMA_MODELO_PRECISO: ${OLLAMA_MODELO_PRECISO:-qwen3.5:4b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-embeddinggemma}
+      RAG_EMBEDDING_DIM: ${RAG_EMBEDDING_DIM:-768}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # necesario en Linux; en Docker Desktop ya existe
     ports:
-      # Solo accesible desde este equipo
+      - "${APP_PUERTO:-8080}:8080"
+      # PostgreSQL solo accesible desde este equipo (desarrollo, psql, scripts)
       - "127.0.0.1:${DB_PUERTO:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d escuela"]
-      interval: 3s
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d escuela -q && bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
       timeout: 3s
-      retries: 20
+      retries: 40
+      start_period: 30s
+    stop_grace_period: 40s
     restart: unless-stopped
 
-  # Aplica las migraciones y termina. La aplicación también las aplica al arrancar
-  # (quarkus.flyway.migrate-at-start); comparten flyway_schema_history, así que da igual cuál vaya primero.
+  # Opcional: aplicar las migraciones con Flyway a mano (la app ya lo hace al arrancar).
+  #   docker compose --profile migraciones run --rm migraciones
   migraciones:
+    profiles: ["migraciones"]
     image: flyway/flyway:10
     depends_on:
-      db:
+      app:
         condition: service_healthy
     command: >
-      -url=jdbc:postgresql://db:5432/escuela
+      -url=jdbc:postgresql://app:5432/escuela
       -user=escuela_admin
       -password=${ESCUELA_ADMIN_PASSWORD}
       -locations=filesystem:/flyway/sql
@@ -53,93 +64,5 @@ services:
     volumes:
       - ./app_llm/src/main/resources/db/migration:/flyway/sql:ro
 
-  # ---- Modelos de lenguaje (todo en local) ----------------------------
-  ollama:
-    image: ollama/ollama:latest
-    volumes:
-      - ollama:/root/.ollama
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-    restart: unless-stopped
-
-  # Descarga los modelos la primera vez y termina. Modelo "preciso" opcional (~5,5 GB):
-  # añade qwen3.5:4b a OLLAMA_MODELOS en .env.
-  ollama-modelos:
-    image: ollama/ollama:latest
-    depends_on:
-      ollama:
-        condition: service_healthy
-    environment:
-      OLLAMA_HOST: http://ollama:11434
-      OLLAMA_MODELOS: ${OLLAMA_MODELOS:-llama3.2:3b llama3.2:1b embeddinggemma}
-    entrypoint: ["/bin/sh", "-c", "for m in $$OLLAMA_MODELOS; do ollama pull $$m || exit 1; done"]
-    restart: "no"
-
-  # ---- Aplicación -----------------------------------------------------
-  app:
-    build: ./app_llm
-    image: hack4edu-app
-    depends_on:
-      db:
-        condition: service_healthy
-      migraciones:
-        condition: service_completed_successfully
-    environment:
-      DB_URL: jdbc:postgresql://db:5432/escuela
-      ESCUELA_ADMIN_PASSWORD: ${ESCUELA_ADMIN_PASSWORD}
-      APP_LECTOR_PASSWORD: ${APP_LECTOR_PASSWORD}
-      APP_INGESTA_PASSWORD: ${APP_INGESTA_PASSWORD}
-      DOCENTE_PASSWORD: ${DOCENTE_PASSWORD:?define DOCENTE_PASSWORD en .env}
-      DIRECCION_PASSWORD: ${DIRECCION_PASSWORD:?define DIRECCION_PASSWORD en .env}
-      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
-      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama3.2:3b}
-      OLLAMA_MODELO_RAPIDO: ${OLLAMA_MODELO_RAPIDO:-llama3.2:1b}
-      OLLAMA_MODELO_PRECISO: ${OLLAMA_MODELO_PRECISO:-qwen3.5:4b}
-      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-embeddinggemma}
-      RAG_EMBEDDING_DIM: ${RAG_EMBEDDING_DIM:-768}
-    ports:
-      - "${APP_PUERTO:-8080}:8080"
-    healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8080'"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-      start_period: 20s
-    restart: unless-stopped
-
-  # ---- Datos de demostración (perfil "datos") -------------------------
-  # Carga StudentPerformanceFactors.csv. Es idempotente: cada ejecución sustituye la línea base.
-  carga-datos:
-    profiles: ["datos"]
-    image: pgvector/pgvector:pg16
-    depends_on:
-      migraciones:
-        condition: service_completed_successfully
-    environment:
-      PSQL_URL: postgresql://escuela_admin:${ESCUELA_ADMIN_PASSWORD}@db:5432/escuela
-    volumes:
-      - ./scripts:/scripts:ro
-      - ./datos:/datos:ro
-    entrypoint: ["bash", "/scripts/cargar_kaggle.sh", "/datos/StudentPerformanceFactors.csv"]
-    restart: "no"
-
-  # Reconstruye el índice del asistente con los datos recién cargados (necesita los modelos de Ollama).
-  indexar-asistente:
-    profiles: ["datos"]
-    image: curlimages/curl:8.10.1
-    depends_on:
-      carga-datos:
-        condition: service_completed_successfully
-      ollama-modelos:
-        condition: service_completed_successfully
-      app:
-        condition: service_healthy
-    command: ["-sS", "-f", "-X", "POST", "--max-time", "1800", "http://app:8080/api/rag/ingesta"]
-    restart: "no"
-
 volumes:
   pgdata:
-  ollama:
