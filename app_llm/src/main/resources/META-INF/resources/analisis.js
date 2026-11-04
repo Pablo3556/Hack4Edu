@@ -279,11 +279,15 @@ async function cargarEvolucion() {
   const esGrupo = estado.grupo != null;
   $("tituloEvolucion").textContent = esGrupo ? "Evolución del grupo" : "Evolución del centro";
   if (estado.centro == null) {
+    $("tituloEvolucion").textContent = "Evolución";
+    $("notaEvolucion").textContent = "La evolución se calcula por centro o por grupo, no para el conjunto de centros.";
+    $("ultimaAct").textContent = "";
+    $("avisoEvolucion").textContent = "";
     $("kpisEvolucion").replaceChildren();
     $("tablaEvolucion").replaceChildren();
     $("alertas").replaceChildren();
-    $("mensajeDatos").textContent = "Elige un centro (Dirección) o un grupo (Docente) para ver su evolución.";
-    vacio("gEvolucion", "Sin ámbito elegido.");
+    $("mensajeDatos").textContent = "Elige el rol «Dirección» (un centro) o «Docente» (un grupo) en la barra superior.";
+    vacio("gEvolucion", "Elige el rol Dirección o Docente para ver la evolución.");
     return;
   }
   try {
