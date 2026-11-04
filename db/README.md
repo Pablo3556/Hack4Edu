@@ -12,7 +12,7 @@ Desde la raíz del repo:
 ```bash
 cp .env.example .env                       # y cambia las contraseñas
 docker compose up -d db                    # crea roles y pgvector (solo la primera vez)
-docker compose run --rm migraciones        # aplica V1…V6 (o arranca la app Quarkus)
+docker compose up migraciones             # aplica las migraciones (o arranca la app Quarkus)
 ./scripts/cargar_kaggle.sh                 # carga el CSV (se puede repetir)
 ```
 
@@ -31,7 +31,7 @@ set -a; source ../.env; set +a
 |---|---|---|
 | `staging` | Filas por alumno: `spf_raw` (CSV tal cual, se vacía tras cargar), `alumno_spf` (foto actual: último periodo de cada grupo), `observacion` (histórico por periodo) y `carga` (auditoría) | `escuela_admin`; `app_ingesta` solo inserta en `spf_raw` y ejecuta los procedimientos de ingesta |
 | `analitica` | Catálogos (`centro`, `grupo`, `factor`, `factor_nivel`, `periodo`) y vistas agregadas | `app_lector`, solo lectura |
-| `ia` | `embeddings`: fichas agregadas + vector para el RAG (V6) | `app_lector`, lectura y escritura |
+| `ia` | `embeddings`: fichas agregadas + vector para el RAG (V6); `medida`: medidas de mejora sin datos personales (V8) | `app_lector`, lectura y escritura |
 
 ## Vistas para la app
 

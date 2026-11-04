@@ -1,3 +1,9 @@
 # Contraseñas locales
 .env
 .DS_Store
+
+# IDE y herramientas locales
+.idea/
+.codex/
+.vscode/
+*.iml

@@ -1,5 +1,11 @@
-*
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+# Solo hace falta el código fuente y el wrapper de Maven.
+target/
+.idea/
+.codex/
+.git/
+.gitignore
+.vscode/
+*.iml
+README.md
+Dockerfile
+.dockerignore

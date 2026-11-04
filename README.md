@@ -8,23 +8,58 @@ agregados, sin decisiones automáticas sobre alumnos y con todo ejecutándose en
 
 | Ruta | Contenido |
 |---|---|
-| `app_llm/` | Aplicación Quarkus (API REST, web, asistente con LangChain4j + Ollama) |
+| `app_llm/` | Aplicación Quarkus (API REST, web, asistente con LangChain4j + Ollama) y su `Dockerfile` |
+| `app_llm/src/main/java/es/hack4edu/` | Código en **arquitectura hexagonal**, un paquete por módulo: ver [docs/arquitectura.md](docs/arquitectura.md) |
+| `app_llm/src/main/resources/META-INF/resources/` | Interfaz web: `index.html`, `css/` y `js/` |
 | `app_llm/src/main/resources/db/migration/` | Migraciones Flyway: esquema, vistas agregadas y permisos |
 | `db/` | Inicialización de PostgreSQL (roles, pgvector) y [documentación de la base de datos](db/README.md) |
-| `datos/` | Datasets de entrada (Student Performance Factors, Kaggle, CC0) |
+| `datos/` | Datasets de entrada (Student Performance Factors, Kaggle, CC0) y CSV de ejemplo |
 | `scripts/` | Carga de datos |
-| `docker-compose.yml` | PostgreSQL + pgvector y Flyway |
+| `docs/` | Documentación de arquitectura |
+| `docker-compose.yml` | Toda la pila: PostgreSQL + pgvector, Flyway, Ollama y la aplicación |
 
-## Arranque rápido
+## Arranque con Docker
 
 ```bash
-cp .env.example .env                  # cambia las contraseñas
-docker compose up -d db
-docker compose run --rm migraciones
-./scripts/cargar_kaggle.sh
-ollama pull llama3.2:3b               # modelo de chat (Llama)
-ollama pull embeddinggemma            # modelo de embeddings
+cp .env.example .env                              # cambia las contraseñas
+docker compose --profile datos up -d --build      # pila completa + datos de demostración
+```
+
+La primera vez tarda: construye la imagen de la app y Ollama descarga los modelos (~3 GB; puedes seguirlo con
+`docker compose logs -f ollama-modelos`). Después abre **http://localhost:8080**.
+
+| Servicio | Qué hace |
+|---|---|
+| `db` | PostgreSQL 16 + pgvector. Datos en el volumen `pgdata` |
+| `migraciones` | Aplica las migraciones de Flyway y termina |
+| `ollama` | Servidor de modelos en local |
+| `ollama-modelos` | Descarga los modelos la primera vez y termina |
+| `app` | La aplicación (imagen construida desde `app_llm/Dockerfile`) |
+| `carga-datos` · `indexar-asistente` | Solo con `--profile datos`: cargan el CSV de Kaggle y reindexan el asistente |
+
+Sin el perfil `datos` arrancan solo los cuatro primeros y la aplicación; los datos se cargan después con
+`docker compose --profile datos up carga-datos indexar-asistente`.
+
+```bash
+docker compose ps                    # estado de cada servicio
+docker compose logs -f app           # logs de la aplicación
+docker compose down                  # parar (conserva los datos)
+docker compose down -v               # parar y borrar base de datos y modelos
+```
+
+**Ollama en macOS:** el contenedor no usa la GPU y es lento. Si tienes Ollama instalado, es mejor usar el nativo:
+pon `OLLAMA_URL=http://host.docker.internal:11434` en `.env` y arranca con
+`docker compose up -d --scale ollama=0 --scale ollama-modelos=0`.
+
+## Desarrollo local (sin construir la imagen)
+
+```bash
+cp .env.example .env
+docker compose up -d db migraciones               # solo la base de datos
+./scripts/cargar_kaggle.sh                        # datos de demostración
+ollama pull llama3.2:3b && ollama pull embeddinggemma
 cd app_llm && set -a && source ../.env && set +a && ./mvnw quarkus:dev
+./mvnw test                                       # tests (no necesitan base de datos)
 ```
 
 ## Asistente RAG
@@ -48,6 +83,19 @@ los modelos de chat Llama no sirven `/api/embed`, por eso los embeddings usan `e
 (multilingüe, 768 dimensiones).
 
 Detalles en [db/README.md](db/README.md).
+
+## Resumen semanal, panel de dirección y seguimiento de medidas
+
+Tres secciones nuevas en la web (pestañas junto a «Análisis y evolución»):
+
+| Pestaña | Endpoint | Qué hace |
+|---|---|---|
+| Resumen semanal | `GET /api/resumen-semanal?centro=&grupo=` | Tres prioridades del grupo (o centro) en lenguaje llano, con la línea a explorar, la fuente de cada cifra (vista y ámbito), señales de evolución y medidas en curso. Es determinista: no pasa por el LLM, así que cada afirmación es verificable. Botón «Copiar resumen» para la reunión. |
+| Panel de dirección | `GET /api/direccion/semaforo?centro=` | Semáforo verde/ámbar/rojo por grupo frente al conjunto de centros (nota, asistencia, % asistencia baja, acceso a recursos, tutorías) y brechas de equidad del centro. Los umbrales están en `direccion/dominio/Semaforo.java` y se muestran en pantalla. |
+| Seguimiento de medidas | `GET/POST /api/medidas`, `PUT /api/medidas/{id}/estado` | Se registra una medida («tutoría entre iguales en 2.º B») con el indicador a vigilar y el periodo de inicio. Al importar datos posteriores se muestra el antes y el después **descontando** lo que cambió en los demás grupos (o centros). Registrar o cambiar el estado exige usuario `docente` o `direccion` y la cabecera `X-Hack4Edu: 1`. |
+
+Las medidas se guardan en `ia.medida` (migración V8) y no contienen datos de alumnos. La valoración es una
+asociación temporal, no una prueba de causalidad, y así se indica en pantalla.
 
 ## Asistente: elegir el modelo
 
