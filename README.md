@@ -48,3 +48,29 @@ los modelos de chat Llama no sirven `/api/embed`, por eso los embeddings usan `e
 (multilingüe, 768 dimensiones).
 
 Detalles en [db/README.md](db/README.md).
+
+## Asistente: elegir el modelo
+
+El usuario puede elegir con qué modelo responde el asistente. Todos usan las mismas
+instrucciones, el mismo RAG y el mismo modelo de embeddings (`embeddinggemma`), así que
+cambiar de modelo no obliga a reindexar.
+
+| `modelo` | Modelo de Ollama | Para qué |
+|---|---|---|
+| `rapido` | `llama3.2:1b` | Responde antes, con menos detalle |
+| `equilibrado` (por defecto) | `llama3.2:3b` | Recomendado para la demo |
+| `preciso` | `qwen3.5:4b` | Más cuidado, más lento (~5,5 GB) |
+
+```bash
+ollama pull llama3.2:1b && ollama pull llama3.2:3b && ollama pull qwen3.5:4b && ollama pull embeddinggemma
+
+# Qué modelos hay y cuáles están descargados
+curl localhost:8080/api/modelos
+
+# Preguntar con un modelo concreto ("modelo" es opcional)
+curl -X POST localhost:8080/api/asistente -H 'Content-Type: application/json' \
+     -d '{"pregunta": "¿Qué deberíamos priorizar en el Centro Demo 03?", "modelo": "preciso"}'
+```
+
+Los modelos concretos se cambian sin tocar código con `OLLAMA_MODELO_RAPIDO`,
+`OLLAMA_CHAT_MODEL` (equilibrado) y `OLLAMA_MODELO_PRECISO`.
