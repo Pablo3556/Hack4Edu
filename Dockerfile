@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 # ---------------------------------------------------------------------
 # Imagen única de Hack4Edu: PostgreSQL 16 + pgvector + aplicación Quarkus.
 # Se construye desde la raíz del repositorio:  docker compose up -d --build
