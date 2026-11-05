@@ -1,3 +1,7 @@
+
+
+
+
 <p align="center">
   <img src="docs/icono/adastra.svg" alt="Ad Astra" width="110">
 </p>
@@ -17,7 +21,7 @@
   <img alt="Ollama" src="https://img.shields.io/badge/IA-Ollama%20(local)-black">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-un%20contenedor-2496ED">
 </p>
-<video src="videos/video.mp4" controls width="100%"></video>
+
 
 
 ## Índice
@@ -38,6 +42,8 @@
 14. [Problemas frecuentes](#problemas-frecuentes)
 
 
+https://github.com/user-attachments/assets/8f17dace-4593-4ff7-bbcc-0667b70880ff
+
 
 
 ## Qué es
@@ -52,6 +58,9 @@ Una aplicación web que se ejecuta **en tu propio equipo** y responde a pregunta
 Para responderlas cruza los indicadores de rendimiento (nota, asistencia, horas de estudio, tutorías,
 apoyo familiar, acceso a recursos…). Los presenta en paneles, gráficas y un resumen en lenguaje llano,
 y añade un asistente conversacional que responde con las cifras reales y cita de dónde sale cada una.
+
+
+
 
 ## Principios
 
