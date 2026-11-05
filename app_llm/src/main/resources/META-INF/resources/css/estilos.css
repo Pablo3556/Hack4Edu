@@ -1,33 +1,43 @@
+  /* Paleta derivada del icono (docs/icono/hack4edu.svg):
+     azul petróleo #2b8fae → #16506a, barras ámbar #ffd27a → #f0975e y blanco azulado #e4f2f7. */
   :root {
-    --fondo: #f6f5f1;
+    --marca-1: #2b8fae;
+    --marca-2: #16506a;
+    --oro-1: #ffd27a;
+    --oro-2: #f0975e;
+    --hoja: #e4f2f7;
+    --degradado-marca: linear-gradient(135deg, var(--marca-1), var(--marca-2));
+    --degradado-oro: linear-gradient(180deg, var(--oro-1), var(--oro-2));
+
+    --fondo: #f3f7f9;
     --panel: #ffffff;
-    --texto: #1d2330;
-    --suave: #5d6577;
-    --linea: #e3e1da;
+    --texto: #142b36;
+    --suave: #557080;
+    --linea: #dbe6ec;
     --acento: #1f6f8b;
-    --acento-suave: #d8ebf1;
+    --acento-suave: #e4f2f7;
     --bien: #2e7d4f;
     --mal: #b4442f;
-    --aviso: #9a6a00;
-    --aviso-fondo: #fbf3dc;
-    --c1: #1f6f8b; --c2: #e07a3f; --c3: #6b8f3a; --c4: #8a5ca8; --c5: #c9a227;
+    --aviso: #9a5b10;
+    --aviso-fondo: #fff3d9;
+    --c1: #1f6f8b; --c2: #e8844a; --c3: #6b8f3a; --c4: #8a5ca8; --c5: #d9a23f;
     --radio: 12px;
-    --sombra: 0 1px 2px rgba(20, 25, 40, .06), 0 4px 16px rgba(20, 25, 40, .05);
+    --sombra: 0 1px 2px rgba(22, 80, 106, .06), 0 4px 16px rgba(22, 80, 106, .06);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --fondo: #14171d;
-      --panel: #1d2129;
-      --texto: #e8eaef;
-      --suave: #9aa3b5;
-      --linea: #2e3440;
+      --fondo: #0e1c23;
+      --panel: #15272f;
+      --texto: #e6f0f4;
+      --suave: #93abb7;
+      --linea: #25404c;
       --acento: #5fb3d1;
-      --acento-suave: #1d3540;
+      --acento-suave: #173947;
       --bien: #6cc58f;
       --mal: #ef8a74;
-      --aviso: #e3b955;
-      --aviso-fondo: #2e2817;
-      --c1: #5fb3d1; --c2: #f0975e; --c3: #9cc164; --c4: #b78fd4; --c5: #e3c454;
+      --aviso: #ffd27a;
+      --aviso-fondo: #33291a;
+      --c1: #5fb3d1; --c2: #f0975e; --c3: #9cc164; --c4: #b78fd4; --c5: #ffd27a;
       --sombra: none;
     }
   }
@@ -63,13 +73,13 @@
     border: 0; background: transparent; color: var(--suave); font: inherit; padding: 6px 14px;
     border-radius: 7px; cursor: pointer;
   }
-  .roles button[aria-pressed="true"] { background: var(--acento); color: #fff; }
+  .roles button[aria-pressed="true"] { background: var(--degradado-marca); color: #fff; }
   select, textarea, .boton {
     font: inherit; color: var(--texto); background: var(--panel);
     border: 1px solid var(--linea); border-radius: 8px; padding: 7px 10px;
   }
   select:disabled { opacity: .45; }
-  .boton { background: var(--acento); border-color: var(--acento); color: #fff; cursor: pointer; padding: 8px 18px; }
+  .boton { background: var(--degradado-marca); border-color: var(--marca-2); color: #fff; cursor: pointer; padding: 8px 18px; }
   .boton:disabled { opacity: .6; cursor: wait; }
   .ambito-actual { margin-left: auto; color: var(--suave); font-size: 14px; }
 
@@ -120,7 +130,7 @@
     border: 0; background: transparent; font: inherit; color: var(--suave); padding: 8px 14px; cursor: pointer;
     border-bottom: 2px solid transparent; margin-bottom: -1px;
   }
-  .pestanas button[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--acento); font-weight: 600; }
+  .pestanas button[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--oro-2); font-weight: 600; }
   [hidden] { display: none !important; }
 
   /* Análisis y evolución */
@@ -156,7 +166,7 @@
   /* Resumen semanal, panel de dirección y medidas */
   .pestanas { flex-wrap: wrap; }
   .prio-semanal { display: grid; gap: 12px; margin: 12px 0; }
-  .tarjeta-prio { border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px 16px; background: var(--panel); display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; }
+  .tarjeta-prio { border: 1px solid var(--linea); border-left: 4px solid var(--oro-2); border-radius: var(--radio); padding: 14px 16px; background: var(--panel); display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; }
   .tarjeta-prio .num { font-size: 22px; font-weight: 700; color: var(--acento); grid-row: span 4; }
   .tarjeta-prio .titulo { font-weight: 650; font-size: 16px; }
   .tarjeta-prio .probar { color: var(--texto); }
@@ -230,3 +240,11 @@
   .sesion .boton { padding: 5px 12px; font-size: 13px; }
   @media (max-width: 700px) { .cabecera-app { flex-wrap: wrap; } .sesion { margin-left: 0; } }
   .solo-consulta .solo-escritura { display: none; }
+
+  /* Toques de marca */
+  .kpi { border-top: 3px solid var(--marca-1); }
+  .etiqueta { border: 1px solid color-mix(in srgb, var(--oro-2) 35%, transparent); }
+  .login-tarjeta { background: linear-gradient(90deg, var(--oro-1), var(--oro-2)) top / 100% 5px no-repeat, var(--panel); }
+  @media (prefers-color-scheme: dark) {
+    .boton { border-color: var(--marca-1); }
+  }
