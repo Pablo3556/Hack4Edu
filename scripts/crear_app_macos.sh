@@ -18,8 +18,12 @@ tell application "Terminal"
 end tell
 APPLESCRIPT
 
-# Icono de la app (docs/icono/hack4edu.icns, generado desde hack4edu.svg)
-cp docs/icono/hack4edu.icns Hack4Edu.app/Contents/Resources/applet.icns
+# Icono de la app (Iconos_AdAstra/macos/AdAstra.icns, generado desde icono-macos.svg)
+cp Iconos_AdAstra/macos/AdAstra.icns Hack4Edu.app/Contents/Resources/applet.icns
+# osacompile añade Assets.car con el icono genérico de AppleScript, que macOS prioriza
+# sobre applet.icns: lo quitamos para que se vea el nuestro.
+rm -f Hack4Edu.app/Contents/Resources/Assets.car
+/usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" Hack4Edu.app/Contents/Info.plist 2>/dev/null || true
 codesign --force --deep --sign - Hack4Edu.app 2>/dev/null   # refirma en local tras cambiar el icono
 touch Hack4Edu.app   # para que Finder refresque el icono
 

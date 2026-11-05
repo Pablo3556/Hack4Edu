@@ -170,8 +170,11 @@ contraseñas.
 - **macOS**: la primera vez puede bloquearlo por ser de «un desarrollador no identificado». Haz clic derecho →
   **Abrir** → **Abrir**. Si quieres un icono en el Dock, ejecuta una vez `bash scripts/crear_app_macos.sh`:
   crea `Hack4Edu.app` (déjala en la carpeta del proyecto y arrástrala al Dock).
-- **Windows**: si SmartScreen avisa, pulsa **Más información** → **Ejecutar de todas formas**.
-- **Linux**: si Ollama solo escucha en `127.0.0.1`, ábrelo con `OLLAMA_HOST=0.0.0.0 ollama serve`.
+- **Windows**: si SmartScreen avisa, pulsa **Más información** → **Ejecutar de todas formas**. Para tener un
+  acceso directo con el icono en el Escritorio y en el menú Inicio, ejecuta una vez
+  `powershell -ExecutionPolicy Bypass -File scripts\crear_acceso_windows.ps1`.
+- **Linux**: si Ollama solo escucha en `127.0.0.1`, ábrelo con `OLLAMA_HOST=0.0.0.0 ollama serve`. Para tener un
+  acceso directo con el icono en el menú de aplicaciones, ejecuta una vez `bash scripts/crear_acceso_linux.sh`.
 
 ### Opción B · Paso a paso
 

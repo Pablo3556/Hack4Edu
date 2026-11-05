@@ -1,6 +1,9 @@
-  /* Paleta Ad Astra (Paleta Ad Astra.md + Iconos_AdAstra/icono.svg):
-     marrón de los títulos, oro de los anillos de cifras, pergamino de fondo y melocotón de apoyo. */
+  /* Paleta de la app (la misma del icono): marrón para títulos y datos principales,
+     oro para acentos, pergamino de fondo y melocotón para lo que se resalta.
+     Verde/terracota/ámbar se reservan para estados (bien/mal/aviso) y no se usan en series. */
   :root {
+    /* Siempre en claro: la paleta es marrón sobre pergamino, sin modo oscuro. */
+    color-scheme: light;
     /* Pergamino */
     --pergamino-50: #FAF9F5; --pergamino-100: #F3EFE9; --pergamino-200: #EDE6DB;
     /* Marrón · escala principal (600 = color de los títulos) */
@@ -8,9 +11,11 @@
     --marron-550: #87623B; --marron-600: #583C24; --marron-650: #6E4D30;
     --marron-700: #4A321D; --marron-800: #3A2715; --marron-900: #2E1F12;
     /* Oro · acentos */
-    --oro-50: #FFF4DA; --oro-100: #F2DBA6; --oro-200: #E7CC93; --oro-300: #C9A86A; --oro-700: #7A5B22;
+    --oro-50: #FFF4DA; --oro-100: #F2DBA6; --oro-200: #E7CC93; --oro-300: #C9A86A; --oro-500: #B08A3E; --oro-700: #7A5B22;
     /* Apoyo (con moderación) */
-    --melocoton: #FAC090;
+    --melocoton: #FAC090; --melocoton-600: #D9894F;
+    /* Pizarra: contrapunto frío para una segunda magnitud (asistencia) */
+    --pizarra: #4F7686;
 
     --marca-1: var(--marron-500);
     --marca-2: var(--marron-700);
@@ -29,32 +34,16 @@
     --linea: #E6DCCD;
     --acento: var(--marron-600);
     --acento-suave: #F5EAD3;
-    --bien: #3F7A45;
+    --bien: #4D7A3F;
     --mal: #A8432E;
     --aviso: var(--oro-700);
     --aviso-fondo: #FBF0D6;
-    --c1: #87623B; --c2: #E0935A; --c3: #5E8B57; --c4: #9A6A8C; --c5: #C9A86A;
+    /* Series de gráficas, por significado:
+       c1 nota media (marrón) · c2 % de alumnado / lo resaltado (melocotón)
+       c3 asistencia (pizarra) · c4 equidad y nota asociada (oro) */
+    --c1: #87623B; --c2: #D9894F; --c3: #4F7686; --c4: #B08A3E; --c5: #C9A86A;
     --radio: 12px;
     --sombra: 0 1px 2px rgba(74, 50, 29, .06), 0 4px 16px rgba(74, 50, 29, .07);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --degradado-titulo: linear-gradient(90deg, var(--oro-100), var(--oro-300));
-      --fondo: #1D140C;
-      --panel: #281C12;
-      --texto: var(--pergamino-100);
-      --titulo: var(--oro-200);
-      --suave: #BBA88F;
-      --linea: #3F2F21;
-      --acento: var(--oro-200);
-      --acento-suave: #3A2B1B;
-      --bien: #9CC48A;
-      --mal: #EF8F78;
-      --aviso: var(--oro-100);
-      --aviso-fondo: #362915;
-      --c1: #E7CC93; --c2: #FAC090; --c3: #9CC48A; --c4: #CFA2C4; --c5: #C9A86A;
-      --sombra: none;
-    }
   }
   * { box-sizing: border-box; }
   body {
@@ -150,7 +139,7 @@
     border: 0; background: transparent; font: inherit; color: var(--suave); padding: 8px 14px; cursor: pointer;
     border-bottom: 2px solid transparent; margin-bottom: -1px;
   }
-  .pestanas button[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--oro-2); font-weight: 600; }
+  .pestanas button[aria-selected="true"] { color: var(--titulo); border-bottom-color: var(--oro-500); font-weight: 600; }
   [hidden] { display: none !important; }
 
   /* Análisis y evolución */
@@ -186,7 +175,7 @@
   /* Resumen semanal, panel de dirección y medidas */
   .pestanas { flex-wrap: wrap; }
   .prio-semanal { display: grid; gap: 12px; margin: 12px 0; }
-  .tarjeta-prio { border: 1px solid var(--linea); border-left: 4px solid var(--oro-2); border-radius: var(--radio); padding: 14px 16px; background: var(--panel); display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; }
+  .tarjeta-prio { border: 1px solid var(--linea); border-left: 4px solid var(--oro-500); border-radius: var(--radio); padding: 14px 16px; background: var(--panel); display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; }
   .tarjeta-prio .num { font-size: 22px; font-weight: 700; color: var(--acento); grid-row: span 4; }
   .tarjeta-prio .titulo { font-weight: 650; font-size: 16px; }
   .tarjeta-prio .probar { color: var(--texto); }
@@ -218,8 +207,8 @@
   .pagina-login {
     min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px 16px;
     background:
-      radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--acento) 18%, transparent), transparent 45%),
-      radial-gradient(circle at 85% 85%, color-mix(in srgb, var(--c2) 14%, transparent), transparent 45%),
+      radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--oro-300) 24%, transparent), transparent 45%),
+      radial-gradient(circle at 85% 85%, color-mix(in srgb, var(--melocoton) 22%, transparent), transparent 45%),
       var(--fondo);
   }
   .login { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
@@ -252,7 +241,6 @@
   .login-caja .caja { margin: 0; }
   @keyframes login-entrada { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .login-tarjeta { animation: none; } }
-  @media (prefers-color-scheme: dark) { .login-tarjeta { box-shadow: 0 18px 48px rgba(0, 0, 0, .35); } }
   .cabecera-app { display: flex; align-items: center; gap: 14px; }
   .cabecera-app img { flex: none; }
   .sesion { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--suave); white-space: nowrap; }
@@ -267,7 +255,3 @@
   .boton.secundario:hover, .sugerencias button:hover { background: var(--acento-suave); }
   .etiqueta { border: 1px solid color-mix(in srgb, var(--oro-2) 35%, transparent); }
   .login-tarjeta { background: linear-gradient(90deg, var(--oro-1), var(--oro-2)) top / 100% 5px no-repeat, var(--panel); }
-  @media (prefers-color-scheme: dark) {
-    .boton { border-color: var(--oro-2); }
-    .roles button[aria-pressed="true"], .boton:not(.secundario):not(.peligro) { background: var(--degradado-oro); color: var(--marron-900); }
-  }
