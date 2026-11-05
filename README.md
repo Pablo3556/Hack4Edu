@@ -17,7 +17,7 @@
   <img alt="Ollama" src="https://img.shields.io/badge/IA-Ollama%20(local)-black">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-un%20contenedor-2496ED">
 </p>
-
+<video src="videos/demo.mp4" controls width="100%"></video>
 ---
 
 ## Índice
@@ -38,7 +38,7 @@
 14. [Problemas frecuentes](#problemas-frecuentes)
 
 ---
-<video src="videos/demo.mp4" controls width="100%"></video>
+
 
 ## Qué es
 
