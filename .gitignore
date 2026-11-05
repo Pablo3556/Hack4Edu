@@ -10,3 +10,7 @@
 
 # App de macOS generada por scripts/crear_app_macos.sh
 Hack4Edu.app/
+Parar Hack4Edu.app/
+
+# Registro del arranque sin terminal
+hack4edu.log

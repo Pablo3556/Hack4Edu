@@ -5,16 +5,49 @@
 #   3. Descarga los modelos que falten.
 #   4. Arranca el contenedor y abre el navegador.
 # Doble clic en Hack4Edu-windows.bat (este script lo invoca).
+# Con -SinTerminal (lo usa el acceso directo, a traves de scripts\arranque_oculto_windows.vbs)
+# no muestra consola: avisa con notificaciones y ventanas, y escribe la salida en hack4edu.log.
 # ---------------------------------------------------------------------
+param([switch]$SinTerminal)
 $ErrorActionPreference = "Stop"
 Set-Location -Path $PSScriptRoot
 
-function Paso($s) { Write-Host "`n> $s" -ForegroundColor Cyan }
-function Fallo($s) {
-    Write-Host "`nX $s" -ForegroundColor Red
-    Read-Host "Pulsa Intro para cerrar"
-    exit 1
+if ($SinTerminal) {
+    Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+    $registro = Join-Path $PSScriptRoot "hack4edu.log"
+    Add-Content $registro "`n===== $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ====="
+    # Icono en la bandeja para las notificaciones
+    $bandeja = New-Object System.Windows.Forms.NotifyIcon
+    $ico = Join-Path $PSScriptRoot "Iconos_AdAstra\windows\AdAstra.ico"
+    $bandeja.Icon = if (Test-Path $ico) { New-Object System.Drawing.Icon $ico } else { [System.Drawing.SystemIcons]::Application }
+    $bandeja.Text = "Hack4Edu"
+    $bandeja.Visible = $true
 }
+function Registrar($s) { if ($SinTerminal) { Add-Content $registro $s } }
+# Ejecuta un comando externo; sin consola, su salida va al registro (via cmd, para que
+# PowerShell 5 no convierta lo que escriba en stderr en errores que paren el script)
+function Ejecutar($comando) {
+    if ($SinTerminal) { cmd /c "$comando >> `"$registro`" 2>&1" } else { cmd /c $comando }
+}
+function Notificar($s) {
+    if ($SinTerminal) { $bandeja.ShowBalloonTip(5000, "Hack4Edu", $s, [System.Windows.Forms.ToolTipIcon]::Info) }
+}
+function Dialogo($s, $icono = "Information") {
+    [System.Windows.Forms.MessageBox]::Show($s, "Hack4Edu", "OK", $icono) | Out-Null
+}
+function Terminar($codigo) {
+    if ($SinTerminal) { $bandeja.Dispose() }
+    exit $codigo
+}
+
+function Paso($s) { Write-Host "`n> $s" -ForegroundColor Cyan; Registrar "> $s" }
+function Fallo($s) {
+    Write-Host "`nX $s" -ForegroundColor Red; Registrar "X $s"
+    if ($SinTerminal) { Dialogo "$s`n`nDetalles en: $registro" "Error" }
+    else { Read-Host "Pulsa Intro para cerrar" }
+    Terminar 1
+}
+Notificar "Arrancando Hack4Edu... Te avisaremos cuando este lista."
 function Clave() {
     -join ((1..24) | ForEach-Object { "{0:x}" -f (Get-Random -Maximum 16) })
 }
@@ -95,14 +128,16 @@ foreach ($m in @($chat, $emb)) {
     if ($instalados -match [regex]::Escape($m)) {
         Write-Host "OK $m"
     } else {
-        ollama pull $m
+        Notificar "Descargando el modelo $m (puede tardar unos minutos)..."
+        Ejecutar "ollama pull $m"
         if ($LASTEXITCODE -ne 0) { Fallo "No se pudo descargar el modelo $m." }
     }
 }
 
 # ---- 5. Aplicacion ----------------------------------------------------------
 Paso "Arrancando Hack4Edu (la primera vez construye la imagen: varios minutos)"
-docker compose up -d --build
+Notificar "Preparando la aplicacion (la primera vez tarda varios minutos)..."
+Ejecutar "docker compose up -d --build"
 if ($LASTEXITCODE -ne 0) { Fallo "docker compose ha fallado. Revisa los mensajes de arriba." }
 
 Paso "Esperando a que la aplicacion responda"
@@ -114,6 +149,17 @@ for ($i = 0; $i -lt 150; $i++) {
 if (-not $listo) { Fallo "La aplicacion no responde. Mira los logs con: docker compose logs app" }
 
 Start-Process "http://localhost:$puerto"
+
+if ($SinTerminal) {
+    Dialogo ("Hack4Edu esta en marcha: http://localhost:$puerto`n`n" +
+        "Usuarios (inicia sesion en la web con uno de ellos):`n" +
+        "   docente  /  $($envVars['DOCENTE_PASSWORD'])`n" +
+        "   direccion  /  $($envVars['DIRECCION_PASSWORD'])`n" +
+        "   administracion  /  $($envVars['ADMINISTRACION_PASSWORD'])`n`n" +
+        "La primera vez, los datos de demostracion y el asistente se preparan en segundo plano durante unos minutos. " +
+        "Para pararlo, abre el acceso directo Parar Hack4Edu.")
+    Terminar 0
+}
 
 Write-Host "`n`nHack4Edu esta en marcha: http://localhost:$puerto" -ForegroundColor Green
 Write-Host "`n  Usuarios (inicia sesion en la web con uno de ellos):"
