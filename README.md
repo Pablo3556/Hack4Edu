@@ -37,7 +37,7 @@
 13. [Estructura del repositorio](#estructura-del-repositorio)
 14. [Problemas frecuentes](#problemas-frecuentes)
 
----
+
 
 
 ## Qué es
