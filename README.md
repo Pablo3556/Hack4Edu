@@ -42,8 +42,6 @@
 14. [Problemas frecuentes](#problemas-frecuentes)
 
 
-https://github.com/user-attachments/assets/8f17dace-4593-4ff7-bbcc-0667b70880ff
-
 
 
 ## Qué es
@@ -470,6 +468,8 @@ Hack4Edu/
 | Se cierra la sesión al reiniciar | Define `SESION_CLAVE` en `.env` (16+ caracteres) |
 
 ---
+
+https://github.com/user-attachments/assets/8f17dace-4593-4ff7-bbcc-0667b70880ff
 
 <p align="center">
   <strong>Ad Astra</strong> · Hecho para Hack4Edu · Datos sintéticos (Kaggle, CC0) y centros ficticios
