@@ -1,3 +1,7 @@
+
+
+
+
 <p align="center">
   <img src="docs/icono/adastra.svg" alt="Ad Astra" width="110">
 </p>
@@ -18,7 +22,7 @@
   <img alt="Docker" src="https://img.shields.io/badge/Docker-un%20contenedor-2496ED">
 </p>
 
----
+
 
 ## Índice
 
@@ -36,9 +40,9 @@
 12. [Desarrollo y pruebas](#desarrollo-y-pruebas)
 13. [Estructura del repositorio](#estructura-del-repositorio)
 14. [Problemas frecuentes](#problemas-frecuentes)
+15. [Demo](#demo)
 
----
-<video src="videos/demo.mp4" controls width="100%"></video>
+
 
 ## Qué es
 
@@ -52,6 +56,9 @@ Una aplicación web que se ejecuta **en tu propio equipo** y responde a pregunta
 Para responderlas cruza los indicadores de rendimiento (nota, asistencia, horas de estudio, tutorías,
 apoyo familiar, acceso a recursos…). Los presenta en paneles, gráficas y un resumen en lenguaje llano,
 y añade un asistente conversacional que responde con las cifras reales y cita de dónde sale cada una.
+
+
+
 
 ## Principios
 
@@ -461,6 +468,10 @@ Hack4Edu/
 | Se cierra la sesión al reiniciar | Define `SESION_CLAVE` en `.env` (16+ caracteres) |
 
 ---
+
+## Demo
+
+https://github.com/user-attachments/assets/8f17dace-4593-4ff7-bbcc-0667b70880ff
 
 <p align="center">
   <strong>Ad Astra</strong> · Hecho para Hack4Edu · Datos sintéticos (Kaggle, CC0) y centros ficticios
