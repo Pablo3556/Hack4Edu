@@ -18,7 +18,7 @@
   <img alt="Docker" src="https://img.shields.io/badge/Docker-un%20contenedor-2496ED">
 </p>
 <video src="videos/video.mp4" controls width="100%"></video>
----
+
 
 ## Índice
 
