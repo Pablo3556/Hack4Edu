@@ -1,42 +1,42 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------
-# Hack4Edu · arranque con un clic (Linux)
+# Ad Astra · arranque con un clic (Linux)
 #   1. Comprueba Docker y Ollama (si el binario está en el PATH, lo arranca).
 #   2. Crea .env con contraseñas aleatorias la primera vez.
 #   3. Descarga los modelos que falten.
 #   4. Arranca el contenedor y abre el navegador.
-# Ejecútalo con: bash Hack4Edu-linux.sh  (o doble clic, si tu gestor de archivos lo permite)
-# Con HACK4EDU_SIN_TERMINAL=1 (lo pone el acceso directo) no usa la terminal: avisa
-# con notify-send y zenity/kdialog si están instalados, y escribe la salida en hack4edu.log.
+# Ejecútalo con: bash AdAstra-linux.sh  (o doble clic, si tu gestor de archivos lo permite)
+# Con ADASTRA_SIN_TERMINAL=1 (lo pone el acceso directo) no usa la terminal: avisa
+# con notify-send y zenity/kdialog si están instalados, y escribe la salida en adastra.log.
 # ---------------------------------------------------------------------
 set -uo pipefail
 cd "$(dirname "$0")"
 
-SIN_TERMINAL="${HACK4EDU_SIN_TERMINAL:-0}"
+SIN_TERMINAL="${ADASTRA_SIN_TERMINAL:-0}"
 if [ "$SIN_TERMINAL" = 1 ]; then
-  exec >>hack4edu.log 2>&1
+  exec >>adastra.log 2>&1
   printf '\n===== %s =====\n' "$(date '+%Y-%m-%d %H:%M:%S')"
 fi
 
 # Ventana de diálogo: $1 texto, $2 tipo (error | info)
 dialogo() {
-  if command -v zenity >/dev/null; then zenity "--${2:-info}" --title=Hack4Edu --no-wrap --text="$1" 2>/dev/null
+  if command -v zenity >/dev/null; then zenity "--${2:-info}" --title="Ad Astra" --no-wrap --text="$1" 2>/dev/null
   elif command -v kdialog >/dev/null; then
-    if [ "${2:-info}" = error ]; then kdialog --title Hack4Edu --error "$1"; else kdialog --title Hack4Edu --msgbox "$1"; fi
-  elif command -v notify-send >/dev/null; then notify-send -a Hack4Edu Hack4Edu "$1"
+    if [ "${2:-info}" = error ]; then kdialog --title "Ad Astra" --error "$1"; else kdialog --title "Ad Astra" --msgbox "$1"; fi
+  elif command -v notify-send >/dev/null; then notify-send -a "Ad Astra" "Ad Astra" "$1"
   fi
 }
-notificar() { [ "$SIN_TERMINAL" = 1 ] && command -v notify-send >/dev/null && notify-send -a Hack4Edu Hack4Edu "$1"; return 0; }
+notificar() { [ "$SIN_TERMINAL" = 1 ] && command -v notify-send >/dev/null && notify-send -a "Ad Astra" "Ad Astra" "$1"; return 0; }
 esperar_intro() { [ "$SIN_TERMINAL" = 1 ] || read -r -p "$1"; }
 
 paso()  { printf '\n\033[1;34m▸ %s\033[0m\n' "$*"; }
 fallo() {
   printf '\n\033[1;31m✗ %s\033[0m\n' "$1"
-  [ "$SIN_TERMINAL" = 1 ] && dialogo "$1"$'\n\n'"Detalles en: $(pwd)/hack4edu.log" error
+  [ "$SIN_TERMINAL" = 1 ] && dialogo "$1"$'\n\n'"Detalles en: $(pwd)/adastra.log" error
   esperar_intro "Pulsa Intro para cerrar…"
   exit 1
 }
-notificar "Arrancando Hack4Edu… Te avisaremos cuando esté lista."
+notificar "Arrancando Ad Astra… Te avisaremos cuando esté lista."
 clave() { command -v openssl >/dev/null 2>&1 && openssl rand -hex 12 || head -c32 /dev/urandom | od -An -tx1 | tr -d ' \n' | cut -c1-24; }
 
 # ---- 1. Docker -------------------------------------------------------
@@ -52,7 +52,7 @@ if ! ollama_ok; then
   if command -v ollama >/dev/null; then
     (ollama serve >/dev/null 2>&1 &)
   else
-    fallo "Falta Ollama. Instálalo (https://ollama.com/download) y vuelve a abrir Hack4Edu."
+    fallo "Falta Ollama. Instálalo (https://ollama.com/download) y vuelve a abrir Ad Astra."
   fi
   for _ in $(seq 1 30); do ollama_ok && break; sleep 1; done
   ollama_ok || fallo "Ollama no responde en localhost:11434."
@@ -63,7 +63,7 @@ echo "Ollama listo"
 if [ ! -f .env ]; then
   paso "Creando .env con contraseñas aleatorias"
   {
-    echo "# Generado por Hack4Edu-linux.sh el $(date '+%Y-%m-%d %H:%M')"
+    echo "# Generado por AdAstra-linux.sh el $(date '+%Y-%m-%d %H:%M')"
     echo "POSTGRES_PASSWORD=$(clave)"
     echo "ESCUELA_ADMIN_PASSWORD=$(clave)"
     echo "APP_LECTOR_PASSWORD=$(clave)"
@@ -94,7 +94,7 @@ for m in "${OLLAMA_CHAT_MODEL:-llama3.2:3b}" "${OLLAMA_EMBEDDING_MODEL:-embeddin
 done
 
 # ---- 5. Aplicación ---------------------------------------------------
-paso "Arrancando Hack4Edu (la primera vez construye la imagen: varios minutos)"
+paso "Arrancando Ad Astra (la primera vez construye la imagen: varios minutos)"
 notificar "Preparando la aplicación (la primera vez tarda varios minutos)…"
 docker compose up -d --build || fallo "docker compose ha fallado. Revisa los mensajes de arriba."
 
@@ -109,7 +109,7 @@ curl -sf -o /dev/null "http://localhost:$PUERTO/login.html" \
 (command -v xdg-open >/dev/null && xdg-open "http://localhost:$PUERTO" >/dev/null 2>&1 &) || true
 
 if [ "$SIN_TERMINAL" = 1 ]; then
-  dialogo "Hack4Edu está en marcha: http://localhost:$PUERTO
+  dialogo "Ad Astra está en marcha: http://localhost:$PUERTO
 
 Usuarios (inicia sesión en la web con uno de ellos):
    docente  /  $DOCENTE_PASSWORD
@@ -117,13 +117,13 @@ Usuarios (inicia sesión en la web con uno de ellos):
    administracion  /  $ADMINISTRACION_PASSWORD
 
 La primera vez, los datos de demostración y el asistente se preparan
-en segundo plano durante unos minutos. Para pararlo, abre «Parar Hack4Edu»." info
+en segundo plano durante unos minutos. Para pararlo, abre «Parar Ad Astra»." info
   exit 0
 fi
 
 cat <<EOF
 
-$(printf '\033[1;32m✓ Hack4Edu está en marcha: http://localhost:%s\033[0m' "$PUERTO")
+$(printf '\033[1;32m✓ Ad Astra está en marcha: http://localhost:%s\033[0m' "$PUERTO")
 
   Usuarios (inicia sesión en la web con uno de ellos):
     docente         / $DOCENTE_PASSWORD
@@ -131,7 +131,7 @@ $(printf '\033[1;32m✓ Hack4Edu está en marcha: http://localhost:%s\033[0m' "$
     administracion  / $ADMINISTRACION_PASSWORD
 
   La primera vez, los datos de demostración y el asistente se preparan en segundo
-  plano durante unos minutos. Para pararlo, ejecuta «Parar-Hack4Edu-linux.sh».
+  plano durante unos minutos. Para pararlo, ejecuta «Parar-AdAstra-linux.sh».
 
 EOF
 read -r -p "Pulsa Intro para cerrar esta ventana (la app sigue funcionando)…"

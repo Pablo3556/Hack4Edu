@@ -1,12 +1,12 @@
 # ---------------------------------------------------------------------
-# Hack4Edu - arranque con un clic (Windows)
+# Ad Astra - arranque con un clic (Windows)
 #   1. Comprueba Docker Desktop y Ollama.
 #   2. Crea .env con contraseñas aleatorias la primera vez.
 #   3. Descarga los modelos que falten.
 #   4. Arranca el contenedor y abre el navegador.
-# Doble clic en Hack4Edu-windows.bat (este script lo invoca).
+# Doble clic en AdAstra-windows.bat (este script lo invoca).
 # Con -SinTerminal (lo usa el acceso directo, a traves de scripts\arranque_oculto_windows.vbs)
-# no muestra consola: avisa con notificaciones y ventanas, y escribe la salida en hack4edu.log.
+# no muestra consola: avisa con notificaciones y ventanas, y escribe la salida en adastra.log.
 # ---------------------------------------------------------------------
 param([switch]$SinTerminal)
 $ErrorActionPreference = "Stop"
@@ -14,13 +14,13 @@ Set-Location -Path $PSScriptRoot
 
 if ($SinTerminal) {
     Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-    $registro = Join-Path $PSScriptRoot "hack4edu.log"
+    $registro = Join-Path $PSScriptRoot "adastra.log"
     Add-Content $registro "`n===== $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ====="
     # Icono en la bandeja para las notificaciones
     $bandeja = New-Object System.Windows.Forms.NotifyIcon
     $ico = Join-Path $PSScriptRoot "Iconos_AdAstra\windows\AdAstra.ico"
     $bandeja.Icon = if (Test-Path $ico) { New-Object System.Drawing.Icon $ico } else { [System.Drawing.SystemIcons]::Application }
-    $bandeja.Text = "Hack4Edu"
+    $bandeja.Text = "Ad Astra"
     $bandeja.Visible = $true
 }
 function Registrar($s) { if ($SinTerminal) { Add-Content $registro $s } }
@@ -30,10 +30,10 @@ function Ejecutar($comando) {
     if ($SinTerminal) { cmd /c "$comando >> `"$registro`" 2>&1" } else { cmd /c $comando }
 }
 function Notificar($s) {
-    if ($SinTerminal) { $bandeja.ShowBalloonTip(5000, "Hack4Edu", $s, [System.Windows.Forms.ToolTipIcon]::Info) }
+    if ($SinTerminal) { $bandeja.ShowBalloonTip(5000, "Ad Astra", $s, [System.Windows.Forms.ToolTipIcon]::Info) }
 }
 function Dialogo($s, $icono = "Information") {
-    [System.Windows.Forms.MessageBox]::Show($s, "Hack4Edu", "OK", $icono) | Out-Null
+    [System.Windows.Forms.MessageBox]::Show($s, "Ad Astra", "OK", $icono) | Out-Null
 }
 function Terminar($codigo) {
     if ($SinTerminal) { $bandeja.Dispose() }
@@ -47,7 +47,7 @@ function Fallo($s) {
     else { Read-Host "Pulsa Intro para cerrar" }
     Terminar 1
 }
-Notificar "Arrancando Hack4Edu... Te avisaremos cuando este lista."
+Notificar "Arrancando Ad Astra... Te avisaremos cuando este lista."
 function Clave() {
     -join ((1..24) | ForEach-Object { "{0:x}" -f (Get-Random -Maximum 16) })
 }
@@ -79,7 +79,7 @@ if (-not (OllamaOk)) {
     if (Get-Command ollama -ErrorAction SilentlyContinue) {
         Start-Process -WindowStyle Hidden ollama -ArgumentList "serve"
     } else {
-        Fallo "Falta Ollama. Instalalo (https://ollama.com/download) y vuelve a abrir Hack4Edu."
+        Fallo "Falta Ollama. Instalalo (https://ollama.com/download) y vuelve a abrir Ad Astra."
     }
     $ollamaListo = $false
     for ($i = 0; $i -lt 30; $i++) { if (OllamaOk) { $ollamaListo = $true; break }; Start-Sleep -Seconds 1 }
@@ -91,7 +91,7 @@ Write-Host "Ollama listo"
 if (-not (Test-Path ".env")) {
     Paso "Creando .env con contrasenas aleatorias"
     @(
-        "# Generado por Hack4Edu-windows.ps1 el $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+        "# Generado por AdAstra-windows.ps1 el $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
         "POSTGRES_PASSWORD=$(Clave)"
         "ESCUELA_ADMIN_PASSWORD=$(Clave)"
         "APP_LECTOR_PASSWORD=$(Clave)"
@@ -135,7 +135,7 @@ foreach ($m in @($chat, $emb)) {
 }
 
 # ---- 5. Aplicacion ----------------------------------------------------------
-Paso "Arrancando Hack4Edu (la primera vez construye la imagen: varios minutos)"
+Paso "Arrancando Ad Astra (la primera vez construye la imagen: varios minutos)"
 Notificar "Preparando la aplicacion (la primera vez tarda varios minutos)..."
 Ejecutar "docker compose up -d --build"
 if ($LASTEXITCODE -ne 0) { Fallo "docker compose ha fallado. Revisa los mensajes de arriba." }
@@ -151,21 +151,21 @@ if (-not $listo) { Fallo "La aplicacion no responde. Mira los logs con: docker c
 Start-Process "http://localhost:$puerto"
 
 if ($SinTerminal) {
-    Dialogo ("Hack4Edu esta en marcha: http://localhost:$puerto`n`n" +
+    Dialogo ("Ad Astra esta en marcha: http://localhost:$puerto`n`n" +
         "Usuarios (inicia sesion en la web con uno de ellos):`n" +
         "   docente  /  $($envVars['DOCENTE_PASSWORD'])`n" +
         "   direccion  /  $($envVars['DIRECCION_PASSWORD'])`n" +
         "   administracion  /  $($envVars['ADMINISTRACION_PASSWORD'])`n`n" +
         "La primera vez, los datos de demostracion y el asistente se preparan en segundo plano durante unos minutos. " +
-        "Para pararlo, abre el acceso directo Parar Hack4Edu.")
+        "Para pararlo, abre el acceso directo Parar Ad Astra.")
     Terminar 0
 }
 
-Write-Host "`n`nHack4Edu esta en marcha: http://localhost:$puerto" -ForegroundColor Green
+Write-Host "`n`nAd Astra esta en marcha: http://localhost:$puerto" -ForegroundColor Green
 Write-Host "`n  Usuarios (inicia sesion en la web con uno de ellos):"
 Write-Host "    docente         / $($envVars['DOCENTE_PASSWORD'])"
 Write-Host "    direccion       / $($envVars['DIRECCION_PASSWORD'])"
 Write-Host "    administracion  / $($envVars['ADMINISTRACION_PASSWORD'])"
 Write-Host "`n  La primera vez, los datos de demostracion y el asistente se preparan en segundo"
-Write-Host "  plano durante unos minutos. Para pararlo, ejecuta Parar-Hack4Edu-windows.bat"
+Write-Host "  plano durante unos minutos. Para pararlo, ejecuta Parar-AdAstra-windows.bat"
 Read-Host "`nPulsa Intro para cerrar esta ventana (la app sigue funcionando)"

@@ -1,6 +1,6 @@
 # app_llm
 
-Aplicación Quarkus de Hack4Edu: API REST, interfaz web y asistente (LangChain4j + Ollama).
+Aplicación Quarkus de Ad Astra: API REST, interfaz web y asistente (LangChain4j + Ollama).
 Documentación general en el [README de la raíz](../README.md) y estructura del código en
 [docs/arquitectura.md](../docs/arquitectura.md).
 

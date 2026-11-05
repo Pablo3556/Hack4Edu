@@ -17,7 +17,7 @@ for v in POSTGRES_PASSWORD ESCUELA_ADMIN_PASSWORD APP_LECTOR_PASSWORD APP_INGEST
 done
 
 export POSTGRES_DB="${POSTGRES_DB:-escuela}" POSTGRES_USER="${POSTGRES_USER:-postgres}"
-RAIZ=/opt/hack4edu
+RAIZ=/opt/adastra
 
 # ---- 1. PostgreSQL ---------------------------------------------------
 docker-entrypoint.sh postgres &
@@ -30,7 +30,7 @@ until pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -q; do
   fi
   sleep 1
 done
-echo "[hack4edu] PostgreSQL listo"
+echo "[adastra] PostgreSQL listo"
 
 # ---- 2. Aplicación ---------------------------------------------------
 gosu app java ${JAVA_OPTS:-} -Dquarkus.http.host=0.0.0.0 \
@@ -45,20 +45,20 @@ cargar_datos() {
   export PSQL_URL="postgresql://escuela_admin:${ESCUELA_ADMIN_PASSWORD}@127.0.0.1:5432/${POSTGRES_DB}"
   n=$(psql "$PSQL_URL" -tAc "SELECT count(*) FROM staging.carga WHERE tipo = 'kaggle'" 2>/dev/null || echo "?")
   if [ "$n" = "0" ]; then
-    echo "[hack4edu] Cargando el dataset de demostración…"
+    echo "[adastra] Cargando el dataset de demostración…"
     (cd "$RAIZ" && bash scripts/cargar_kaggle.sh datos/StudentPerformanceFactors.csv >/dev/null) \
-      && echo "[hack4edu] Dataset cargado" || { echo "[hack4edu] La carga del dataset ha fallado" >&2; return; }
+      && echo "[adastra] Dataset cargado" || { echo "[adastra] La carga del dataset ha fallado" >&2; return; }
     curl -sf -X POST --max-time 1800 -u "$cred" http://127.0.0.1:8080/api/rag/ingesta >/dev/null \
-      && echo "[hack4edu] Asistente indexado" \
-      || echo "[hack4edu] No se pudo indexar el asistente (¿Ollama accesible en \$OLLAMA_URL con los modelos descargados?). Reintenta: POST /api/rag/ingesta"
+      && echo "[adastra] Asistente indexado" \
+      || echo "[adastra] No se pudo indexar el asistente (¿Ollama accesible en \$OLLAMA_URL con los modelos descargados?). Reintenta: POST /api/rag/ingesta"
   else
-    echo "[hack4edu] La base ya tiene datos; no se carga el dataset"
+    echo "[adastra] La base ya tiene datos; no se carga el dataset"
   fi
   # Profesorado sintético: también en bases ya existentes que aún no lo tienen
   np=$(psql "$PSQL_URL" -tAc "SELECT count(*) FROM staging.profesor" 2>/dev/null || echo "?")
   if [ "$np" = "0" ]; then
     (cd "$RAIZ" && bash scripts/cargar_profesorado.sh >/dev/null) \
-      && echo "[hack4edu] Profesorado cargado" || echo "[hack4edu] La carga del profesorado ha fallado" >&2
+      && echo "[adastra] Profesorado cargado" || echo "[adastra] La carga del profesorado ha fallado" >&2
   fi
 }
 if [ "${CARGAR_DATOS:-false}" = "true" ]; then
@@ -76,6 +76,6 @@ parar() {
 trap 'parar; exit 0' TERM INT
 
 wait -n "$PG" "$APP"
-echo "[hack4edu] Un proceso ha terminado; se detiene el contenedor" >&2
+echo "[adastra] Un proceso ha terminado; se detiene el contenedor" >&2
 parar
 exit 1

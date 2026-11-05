@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="docs/icono/hack4edu.svg" alt="Hack4Edu" width="110">
+  <img src="docs/icono/adastra.svg" alt="Ad Astra" width="110">
 </p>
 
 <h1 align="center">La escuela que aprende de sus datos</h1>
 
 <p align="center">
-  <strong>Hack4Edu · Reto 13</strong><br>
+  <strong>Ad Astra</strong> · Hack4Edu · Reto 13<br>
   Convierte los datos educativos en información comprensible y prioridades de actuación<br>
   para docentes, equipos directivos y administración educativa.
 </p>
@@ -135,7 +135,7 @@ DOCENTE_GRUPO=1
 ### Dónde están las contraseñas
 
 - **Arranque con un clic**: la primera vez se crea `.env` con contraseñas aleatorias y, al terminar de
-  arrancar, **se muestran en pantalla** junto a cada usuario.
+  arrancar, **se muestran en pantalla** junto a cada usuario (en la terminal o, con los iconos, en una ventana).
 - **En cualquier momento**: abre `.env` o ejecuta `grep _PASSWORD .env`.
 
 En el login, el **usuario** es `docente`, `direccion` o `administracion`, y la **contraseña** es el valor que
@@ -163,18 +163,31 @@ contraseñas.
 
 | Sistema | Arrancar | Parar |
 |---|---|---|
-| **macOS** | Doble clic en `Hack4Edu.command` | Doble clic en `Parar Hack4Edu.command` |
-| **Linux** | `bash Hack4Edu-linux.sh` | `bash Parar-Hack4Edu-linux.sh` |
-| **Windows** | Doble clic en `Hack4Edu-windows.bat` | Doble clic en `Parar-Hack4Edu-windows.bat` |
+| **macOS** | Doble clic en `Ad Astra.command` | Doble clic en `Parar Ad Astra.command` |
+| **Linux** | `bash AdAstra-linux.sh` | `bash Parar-AdAstra-linux.sh` |
+| **Windows** | Doble clic en `AdAstra-windows.bat` | Doble clic en `Parar-AdAstra-windows.bat` |
 
 - **macOS**: la primera vez puede bloquearlo por ser de «un desarrollador no identificado». Haz clic derecho →
-  **Abrir** → **Abrir**. Si quieres un icono en el Dock, ejecuta una vez `bash scripts/crear_app_macos.sh`:
-  crea `Hack4Edu.app` (déjala en la carpeta del proyecto y arrástrala al Dock).
-- **Windows**: si SmartScreen avisa, pulsa **Más información** → **Ejecutar de todas formas**. Para tener un
-  acceso directo con el icono en el Escritorio y en el menú Inicio, ejecuta una vez
-  `powershell -ExecutionPolicy Bypass -File scripts\crear_acceso_windows.ps1`.
-- **Linux**: si Ollama solo escucha en `127.0.0.1`, ábrelo con `OLLAMA_HOST=0.0.0.0 ollama serve`. Para tener un
-  acceso directo con el icono en el menú de aplicaciones, ejecuta una vez `bash scripts/crear_acceso_linux.sh`.
+  **Abrir** → **Abrir**.
+- **Windows**: si SmartScreen avisa, pulsa **Más información** → **Ejecutar de todas formas**.
+- **Linux**: si Ollama solo escucha en `127.0.0.1`, ábrelo con `OLLAMA_HOST=0.0.0.0 ollama serve`.
+
+#### Iconos para arrancar y parar sin terminal
+
+Si prefieres un icono, crea una vez los accesos **Ad Astra** y **Parar Ad Astra** con el logotipo de la aplicación:
+
+| Sistema | Comando (una sola vez) | Dónde aparecen |
+|---|---|---|
+| **macOS** | `bash scripts/crear_app_macos.sh` | `Ad Astra.app` y `Parar Ad Astra.app` en la carpeta del proyecto (arrástralas al Dock) |
+| **Linux** | `bash scripts/crear_acceso_linux.sh` | Menú de aplicaciones (y Escritorio, si existe) |
+| **Windows** | `powershell -ExecutionPolicy Bypass -File scripts\crear_acceso_windows.ps1` | Escritorio y menú Inicio |
+
+Estos accesos **no abren ninguna terminal**: informan del progreso con notificaciones, muestran los usuarios y
+contraseñas en una ventana al terminar y guardan toda la salida en `adastra.log` (en la carpeta del proyecto).
+Si algo falla, la ventana de error indica la ruta de ese archivo. En Linux, las ventanas usan `zenity`,
+`kdialog` o `notify-send` si están instalados.
+
+> Los accesos apuntan a la carpeta del proyecto: no la muevas ni saques las `.app` de ella después de crearlos.
 
 ### Opción B · Paso a paso
 
@@ -197,7 +210,7 @@ docker compose up -d --build
 docker compose logs -f app       # Ctrl+C para salir de los logs
 ```
 
-Cuando aparezcan `[hack4edu] Dataset cargado` y `[hack4edu] Asistente indexado`, abre
+Cuando aparezcan `[adastra] Dataset cargado` y `[adastra] Asistente indexado`, abre
 **http://localhost:8080** e inicia sesión.
 
 **5. (Opcional) Datos de evolución.** Para ver con contenido la evolución, las alertas y las medidas:
@@ -214,11 +227,16 @@ curl -u "direccion:$DIRECCION_PASSWORD" -X POST localhost:8080/api/rag/ingesta  
 |---|---|
 | Aplicación | http://localhost:8080 (`APP_PUERTO`) |
 | PostgreSQL | `127.0.0.1:5432`, solo accesible desde este equipo (`DB_PUERTO`) |
-| Datos | Volumen `pgdata` (se conserva tras `docker compose down`) |
+| Datos | Volumen `hack4edu_pgdata` (se conserva tras `docker compose down`) |
 | Ollama | El del equipo, en `OLLAMA_URL` (por defecto `http://host.docker.internal:11434`) |
 
 Es un **único contenedor** con PostgreSQL 16 + pgvector y la aplicación. Ollama no va dentro de la imagen
 porque los modelos pesan varios GB.
+
+> **Cambio de nombre a Ad Astra.** El proyecto de Docker Compose ahora se llama `adastra` (imagen y contenedor
+> incluidos), pero el volumen mantiene su nombre anterior, `hack4edu_pgdata`, para que **no se pierdan los datos**
+> creados antes del cambio. Si aún tienes en marcha el contenedor antiguo, páralo una vez con
+> `docker compose -p hack4edu down` antes de arrancar el nuevo.
 
 ### Comandos útiles
 
@@ -322,7 +340,7 @@ curl -u "docente:$DOCENTE_PASSWORD" "localhost:8080/api/datos/resumen?centro=1&g
 | `POST /api/asistente` · `GET /api/modelos` | todos | Preguntar al asistente · modelos disponibles |
 | `GET /api/rag/estado` · `POST /api/rag/ingesta` | todos · direccion, administracion | Estado del índice · reindexar |
 
-¹ Las peticiones que modifican datos exigen además la cabecera `X-Hack4Edu: 1` (protección CSRF).
+¹ Las peticiones que modifican datos exigen además la cabecera `X-AdAstra: 1` (protección CSRF).
 
 ```bash
 curl -u "docente:$DOCENTE_PASSWORD" localhost:8080/api/asistente \
@@ -346,7 +364,7 @@ curl -u "docente:$DOCENTE_PASSWORD" localhost:8080/api/asistente \
 
 | Capa | Tecnología |
 |---|---|
-| Backend | Java 21, Quarkus 3.40, JAX-RS, JDBC, Flyway (8 migraciones) |
+| Backend | Java 21, Quarkus 3.40, JAX-RS, JDBC, Flyway (9 migraciones) |
 | IA | LangChain4j (quarkus-langchain4j) + Ollama + pgvector |
 | Base de datos | PostgreSQL 16 con pgvector |
 | Frontend | HTML, CSS y JavaScript sin frameworks, gráficas con Chart.js |
@@ -375,7 +393,7 @@ Más detalle en [docs/arquitectura.md](docs/arquitectura.md) y [db/README.md](db
   ninguna decisión automática. Por eso la pantalla lo presenta como apoyo a la mejora, sin rankings.
 - **Importaciones**: el archivo no se guarda. La vista previa vive en memoria y caduca a los 20 minutos.
   Cada intento queda auditado (usuario, archivo, fecha, recuentos y resultado).
-- **CSRF**: las escrituras exigen la cabecera `X-Hack4Edu: 1`.
+- **CSRF**: las escrituras exigen la cabecera `X-AdAstra: 1`.
 - **Secretos** solo en `.env` (excluido de Git). PostgreSQL solo escucha en `127.0.0.1`.
 
 ## Desarrollo y pruebas
@@ -388,7 +406,7 @@ APP_PUERTO=8081 docker compose up -d --build     # BD en 127.0.0.1:5432 (la app 
 cd app_llm
 set -a && source ../.env && set +a
 ./mvnw quarkus:dev                               # → http://localhost:8080
-./mvnw test                                      # 44 tests, no necesitan base de datos
+./mvnw test                                      # 48 tests, no necesitan base de datos
 ```
 
 Los tests cubren las reglas del dominio (ingesta de CSV, evolución, semáforo, valoración de medidas),
@@ -408,7 +426,7 @@ docker compose exec app bash /docker-entrypoint-initdb.d/01-rol-ingesta.sh
 
 ```
 Hack4Edu/
-├── Hack4Edu.command · Hack4Edu-linux.sh · Hack4Edu-windows.bat/.ps1   lanzadores de un clic (y sus «Parar»)
+├── Ad Astra.command · AdAstra-linux.sh · AdAstra-windows.bat/.ps1   lanzadores de un clic (y sus «Parar»)
 ├── Dockerfile · docker-compose.yml · docker/       contenedor único y su script de arranque
 ├── .env.example                                    plantilla de configuración
 ├── app_llm/                                        aplicación Quarkus
@@ -420,7 +438,8 @@ Hack4Edu/
 │           └── application.properties
 ├── db/                                             inicialización de PostgreSQL y documentación
 ├── datos/                                          dataset de Kaggle, profesorado sintético y CSV de ejemplo
-├── scripts/                                        carga de datos y creación de la app de macOS
+├── scripts/                                        carga de datos y creación de accesos directos (macOS, Linux, Windows)
+├── Iconos_AdAstra/                                 icono de la app para cada sistema (.icns, .ico, PNG)
 └── docs/                                           arquitectura e icono
 ```
 
@@ -429,7 +448,8 @@ Hack4Edu/
 | Síntoma | Solución |
 |---|---|
 | `define POSTGRES_PASSWORD en .env` al arrancar | Falta `.env`: `cp .env.example .env` |
-| `port is already allocated` | Puerto ocupado: pon otro en `.env` (`APP_PUERTO=8081`, `DB_PUERTO=5433`) |
+| `port is already allocated` | Puerto ocupado. Si sigue en marcha el contenedor de antes del cambio de nombre, páralo con `docker compose -p hack4edu down`; si no, pon otro puerto en `.env` (`APP_PUERTO=8081`, `DB_PUERTO=5433`) |
+| El icono no hace nada o muestra un error | Mira `adastra.log` en la carpeta del proyecto: ahí queda toda la salida del arranque y la parada sin terminal |
 | «Usuario o contraseña incorrectos» | La contraseña es el valor tras el `=` en `.env`, no el nombre de la variable. El usuario va sin tilde: `direccion` |
 | Cambié HTML/CSS/JS y no veo el cambio | Reconstruye con `docker compose up -d --build` y recarga con Cmd/Ctrl + Shift + R |
 | `Error 403` en algún panel | Ese centro o grupo no es del usuario. Revisa `DOCENTE_CENTRO`, `DOCENTE_GRUPO` y `DIRECCION_CENTRO` |
@@ -442,5 +462,5 @@ Hack4Edu/
 ---
 
 <p align="center">
-  Hecho para <strong>Hack4Edu</strong> · Datos sintéticos (Kaggle, CC0) y centros ficticios
+  <strong>Ad Astra</strong> · Hecho para Hack4Edu · Datos sintéticos (Kaggle, CC0) y centros ficticios
 </p>

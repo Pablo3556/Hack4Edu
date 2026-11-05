@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class FiltroAntiCsrf {
 
-    public static final String CABECERA = "X-Hack4Edu";
+    public static final String CABECERA = "X-AdAstra";
     private static final Set<String> SEGUROS = Set.of("GET", "HEAD", "OPTIONS");
 
     @ServerRequestFilter

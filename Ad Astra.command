@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------
-# Hack4Edu · arranque con doble clic (macOS)
+# Ad Astra · arranque con doble clic (macOS)
 #   1. Comprueba Docker Desktop y Ollama (y los abre si están cerrados).
 #   2. Crea .env con contraseñas aleatorias la primera vez.
 #   3. Descarga los modelos que falten.
 #   4. Arranca el contenedor y abre el navegador.
-# Con HACK4EDU_SIN_TERMINAL=1 (lo pone Hack4Edu.app) no usa la terminal:
-# avisa con notificaciones y ventanas, y escribe la salida en hack4edu.log.
+# Con ADASTRA_SIN_TERMINAL=1 (lo pone Ad Astra.app) no usa la terminal:
+# avisa con notificaciones y ventanas, y escribe la salida en adastra.log.
 # ---------------------------------------------------------------------
 set -uo pipefail
 cd "$(dirname "$0")"
 export PATH="/usr/local/bin:/opt/homebrew/bin:/Applications/Docker.app/Contents/Resources/bin:$PATH"
 
-SIN_TERMINAL="${HACK4EDU_SIN_TERMINAL:-0}"
+SIN_TERMINAL="${ADASTRA_SIN_TERMINAL:-0}"
 if [ "$SIN_TERMINAL" = 1 ]; then
-  exec >>hack4edu.log 2>&1
+  exec >>adastra.log 2>&1
   printf '\n===== %s =====\n' "$(date '+%Y-%m-%d %H:%M:%S')"
 fi
 
@@ -24,9 +24,9 @@ dialogo() {
   osascript - "$1" "${2:-note}" >/dev/null 2>&1 <<'AS'
 on run argv
   if item 2 of argv is "caution" then
-    display dialog (item 1 of argv) with title "Hack4Edu" buttons {"OK"} default button 1 with icon caution
+    display dialog (item 1 of argv) with title "Ad Astra" buttons {"OK"} default button 1 with icon caution
   else
-    display dialog (item 1 of argv) with title "Hack4Edu" buttons {"OK"} default button 1 with icon note
+    display dialog (item 1 of argv) with title "Ad Astra" buttons {"OK"} default button 1 with icon note
   end if
 end run
 AS
@@ -36,7 +36,7 @@ notificar() {
   [ "$SIN_TERMINAL" = 1 ] || return 0
   osascript - "$1" >/dev/null 2>&1 <<'AS'
 on run argv
-  display notification (item 1 of argv) with title "Hack4Edu"
+  display notification (item 1 of argv) with title "Ad Astra"
 end run
 AS
 }
@@ -46,18 +46,18 @@ paso()  { printf '\n\033[1;34m▸ %s\033[0m\n' "$*"; }
 fallo() {
   printf '\n\033[1;31m✗ %s\033[0m\n' "$1"
   local texto="$1"
-  [ "$SIN_TERMINAL" = 1 ] && texto="$1"$'\n\n'"Detalles en: $(pwd)/hack4edu.log"
+  [ "$SIN_TERMINAL" = 1 ] && texto="$1"$'\n\n'"Detalles en: $(pwd)/adastra.log"
   dialogo "$texto" caution
   [ -n "${2:-}" ] && open "$2"
   esperar_intro "Pulsa Intro para cerrar…"
   exit 1
 }
 
-notificar "Arrancando Hack4Edu… Te avisaremos cuando esté lista."
+notificar "Arrancando Ad Astra… Te avisaremos cuando esté lista."
 
 # ---- 1. Docker -------------------------------------------------------
 paso "Comprobando Docker"
-command -v docker >/dev/null || fallo "Falta Docker Desktop. Instálalo y vuelve a abrir Hack4Edu." "https://www.docker.com/products/docker-desktop/"
+command -v docker >/dev/null || fallo "Falta Docker Desktop. Instálalo y vuelve a abrir Ad Astra." "https://www.docker.com/products/docker-desktop/"
 if ! docker info >/dev/null 2>&1; then
   echo "Abriendo Docker Desktop…"
   open -a Docker || fallo "No se pudo abrir Docker Desktop."
@@ -72,7 +72,7 @@ ollama_ok() { curl -sf -o /dev/null http://localhost:11434/api/tags; }
 if ! ollama_ok; then
   if [ -d /Applications/Ollama.app ]; then open -a Ollama
   elif command -v ollama >/dev/null; then (ollama serve >/dev/null 2>&1 &)
-  else fallo "Falta Ollama. Instálalo y vuelve a abrir Hack4Edu." "https://ollama.com/download"
+  else fallo "Falta Ollama. Instálalo y vuelve a abrir Ad Astra." "https://ollama.com/download"
   fi
   for _ in $(seq 1 30); do ollama_ok && break; sleep 1; done
   ollama_ok || fallo "Ollama no responde en localhost:11434."
@@ -84,7 +84,7 @@ if [ ! -f .env ]; then
   paso "Creando .env con contraseñas aleatorias"
   clave() { openssl rand -hex 12; }
   {
-    echo "# Generado por Hack4Edu.command el $(date '+%Y-%m-%d %H:%M')"
+    echo "# Generado por Ad Astra.command el $(date '+%Y-%m-%d %H:%M')"
     echo "POSTGRES_PASSWORD=$(clave)"
     echo "ESCUELA_ADMIN_PASSWORD=$(clave)"
     echo "APP_LECTOR_PASSWORD=$(clave)"
@@ -113,7 +113,7 @@ for m in "${OLLAMA_CHAT_MODEL:-llama3.2:3b}" "${OLLAMA_EMBEDDING_MODEL:-embeddin
 done
 
 # ---- 5. Aplicación ---------------------------------------------------
-paso "Arrancando Hack4Edu (la primera vez construye la imagen: varios minutos)"
+paso "Arrancando Ad Astra (la primera vez construye la imagen: varios minutos)"
 notificar "Preparando la aplicación (la primera vez tarda varios minutos)…"
 docker compose up -d --build || fallo "docker compose ha fallado. Revisa los mensajes de arriba."
 
@@ -128,20 +128,20 @@ curl -sf -o /dev/null "http://localhost:$PUERTO/login.html" \
 open "http://localhost:$PUERTO"
 
 if [ "$SIN_TERMINAL" = 1 ]; then
-  dialogo "Hack4Edu está en marcha: http://localhost:$PUERTO
+  dialogo "Ad Astra está en marcha: http://localhost:$PUERTO
 
 Usuarios (inicia sesión en la web con uno de ellos):
    docente  /  $DOCENTE_PASSWORD
    direccion  /  $DIRECCION_PASSWORD
    administracion  /  $ADMINISTRACION_PASSWORD
 
-La primera vez, los datos de demostración y el asistente se preparan en segundo plano durante unos minutos. Para pararlo, abre «Parar Hack4Edu»."
+La primera vez, los datos de demostración y el asistente se preparan en segundo plano durante unos minutos. Para pararlo, abre «Parar Ad Astra»."
   exit 0
 fi
 
 cat <<EOF
 
-$(printf '\033[1;32m✓ Hack4Edu está en marcha: http://localhost:%s\033[0m' "$PUERTO")
+$(printf '\033[1;32m✓ Ad Astra está en marcha: http://localhost:%s\033[0m' "$PUERTO")
 
   Usuarios (inicia sesión en la web con uno de ellos):
     docente         / $DOCENTE_PASSWORD
@@ -149,7 +149,7 @@ $(printf '\033[1;32m✓ Hack4Edu está en marcha: http://localhost:%s\033[0m' "$
     administracion  / $ADMINISTRACION_PASSWORD
 
   La primera vez, los datos de demostración y el asistente se preparan en segundo
-  plano durante unos minutos. Para pararlo, abre «Parar Hack4Edu.command».
+  plano durante unos minutos. Para pararlo, abre «Parar Ad Astra.command».
 
 EOF
 read -r -p "Pulsa Intro para cerrar esta ventana (la app sigue funcionando)…"

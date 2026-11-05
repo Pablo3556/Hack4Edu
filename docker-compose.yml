@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------
-# Hack4Edu · La escuela que aprende de sus datos
+# Ad Astra · La escuela que aprende de sus datos
 #
 # Un único contenedor con PostgreSQL (pgvector) y la aplicación.
 #   cp .env.example .env              (y cambia las contraseñas)
@@ -8,12 +8,12 @@
 # Los modelos de lenguaje los sirve el Ollama del equipo (OLLAMA_URL), que no va dentro.
 # Los datos viven en el volumen "pgdata". Migraciones: las aplica la app al arrancar.
 # ---------------------------------------------------------------------
-name: hack4edu
+name: adastra
 
 services:
   app:
     build: .
-    image: hack4edu
+    image: adastra
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}
       ESCUELA_ADMIN_PASSWORD: ${ESCUELA_ADMIN_PASSWORD:?define ESCUELA_ADMIN_PASSWORD en .env}
@@ -73,3 +73,5 @@ services:
 
 volumes:
   pgdata:
+    # Nombre fijo: conserva los datos creados cuando el proyecto se llamaba «hack4edu»
+    name: hack4edu_pgdata

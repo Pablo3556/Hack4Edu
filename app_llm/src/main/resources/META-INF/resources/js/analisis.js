@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------
 
 const analisis = { vista: "panel", visible: false, periodos: null, campos: null, previa: null, factores: [], simTimer: null };
-const CABECERA_INGESTA = { "X-Hack4Edu": "1" };
+const CABECERA_INGESTA = { "X-AdAstra": "1" };
 
 // Igual que api(), pero conserva el cuerpo del error (bloqueos de la confirmación)
 async function apiIngesta(ruta, opciones = {}) {

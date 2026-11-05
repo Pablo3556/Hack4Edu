@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------
-# Imagen única de Hack4Edu: PostgreSQL 16 + pgvector + aplicación Quarkus.
+# Imagen única de Ad Astra: PostgreSQL 16 + pgvector + aplicación Quarkus.
 # Se construye desde la raíz del repositorio:  docker compose up -d --build
 # Ollama (los modelos de lenguaje) NO va dentro: se usa el del equipo (OLLAMA_URL).
 # ---------------------------------------------------------------------
@@ -36,9 +36,9 @@ COPY --from=build --chown=app:app /build/target/quarkus-app/quarkus/ /app/quarku
 
 # Roles y pgvector (se ejecutan solo cuando el volumen está vacío), datos de demostración y arranque
 COPY db/init/ /docker-entrypoint-initdb.d/
-COPY scripts/ /opt/hack4edu/scripts/
-COPY datos/StudentPerformanceFactors.csv datos/profesorado.csv datos/asignaciones_docentes.csv /opt/hack4edu/datos/
-COPY docker/entrypoint.sh /usr/local/bin/hack4edu-entrypoint
+COPY scripts/ /opt/adastra/scripts/
+COPY datos/StudentPerformanceFactors.csv datos/profesorado.csv datos/asignaciones_docentes.csv /opt/adastra/datos/
+COPY docker/entrypoint.sh /usr/local/bin/adastra-entrypoint
 
 ENV POSTGRES_DB=escuela \
     POSTGRES_USER=postgres \
@@ -46,4 +46,4 @@ ENV POSTGRES_DB=escuela \
 
 VOLUME /var/lib/postgresql/data
 EXPOSE 8080 5432
-ENTRYPOINT ["hack4edu-entrypoint"]
+ENTRYPOINT ["adastra-entrypoint"]
