@@ -38,10 +38,13 @@
     --mal: #A8432E;
     --aviso: var(--oro-700);
     --aviso-fondo: #FBF0D6;
-    /* Series de gráficas, por significado:
-       c1 nota media (marrón) · c2 % de alumnado / lo resaltado (melocotón)
-       c3 asistencia (pizarra) · c4 equidad y nota asociada (oro) */
-    --c1: #87623B; --c2: #D9894F; --c3: #4F7686; --c4: #B08A3E; --c5: #C9A86A;
+    /* Series de gráficas, por significado. Tonos de matiz muy distinto (legibles
+       también con daltonismo) para que no se confundan entre sí ni con el fondo:
+       c1 nota media (azul tinta) · c2 % de alumnado / lo resaltado (naranja)
+       c3 asistencia (verde azulado) · c4 equidad y nota asociada (ciruela) */
+    --c1: #2C5F8E; --c2: #E0701F; --c3: #1E8C7E; --c4: #8E3B7E; --c5: #C99A2E;
+    /* Escala de intensidad de c1 (de más a menos), p. ej. tamaño del efecto */
+    --c1-1: #1F4E79; --c1-2: #3F79AD; --c1-3: #7FA7CE; --c1-4: #BCD2E8;
     --radio: 12px;
     --sombra: 0 1px 2px rgba(74, 50, 29, .06), 0 4px 16px rgba(74, 50, 29, .07);
   }

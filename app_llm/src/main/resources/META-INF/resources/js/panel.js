@@ -77,7 +77,11 @@ function estiloGraficas() {
   Chart.defaults.borderColor = css("--linea");
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
   Chart.defaults.maintainAspectRatio = false;
-  Chart.defaults.plugins.legend.labels.boxWidth = 12;
+  Chart.defaults.font.size = 13;
+  Chart.defaults.plugins.legend.labels.boxWidth = 14;
+  Chart.defaults.elements.line.borderWidth = 3;
+  Chart.defaults.elements.point.radius = 3.5;
+  Chart.defaults.elements.point.hoverRadius = 6;
 }
 
 // ---------------------------------------------------------------------
@@ -156,7 +160,7 @@ async function cargarPrioridades() {
       lista.replaceChildren();
       return;
     }
-    const fuerza = { "grande": css("--c1"), "moderada": css("--c1") + "cc", "pequeña": css("--c1") + "88", "muy pequeña": css("--c1") + "44" };
+    const fuerza = { "grande": css("--c1-1"), "moderada": css("--c1-2"), "pequeña": css("--c1-3"), "muy pequeña": css("--c1-4") };
     pintar("gPrioridades", {
       type: "bar",
       data: {
@@ -428,7 +432,7 @@ async function iniciar() {
   if (typeof Chart === "undefined") {
     document.querySelector("main").prepend(el("div", { class: "aviso" }, "No se pudo cargar Chart.js (¿sin conexión?). Las gráficas no se mostrarán."));
     window.Chart = function () { return { destroy() {} }; };
-    window.Chart.defaults = { font: {}, plugins: { legend: { labels: {} } } };
+    window.Chart.defaults = { font: {}, plugins: { legend: { labels: {} } }, elements: { line: {}, point: {} } };
   }
   estiloGraficas();
   if (!(await cargarSesion())) return;

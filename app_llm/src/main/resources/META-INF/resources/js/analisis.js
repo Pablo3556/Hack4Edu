@@ -475,7 +475,7 @@ function pintarSimulacion(r) {
     data: {
       labels: r.niveles.map((n) => n.etiqueta),
       datasets: [
-        { label: "% del alumnado ahora", data: r.niveles.map((n) => n.pctActual), backgroundColor: css("--c1") + "99", borderRadius: 4, yAxisID: "y" },
+        { label: "% del alumnado ahora", data: r.niveles.map((n) => n.pctActual), backgroundColor: css("--c1-3"), borderRadius: 4, yAxisID: "y" },
         { label: "% en el escenario", data: r.niveles.map((n) => n.pctEscenario), backgroundColor: css("--c2"), borderRadius: 4, yAxisID: "y" },
         { type: "line", label: "Nota media observada en el nivel", data: r.niveles.map((n) => n.notaAsociada), borderColor: css("--c4"), backgroundColor: css("--c4"), yAxisID: "y2", tension: .25 }
       ]
