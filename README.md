@@ -38,6 +38,7 @@
 14. [Problemas frecuentes](#problemas-frecuentes)
 
 ---
+<video src="videos/demo.mp4" controls width="100%"></video>
 
 ## Qué es
 
