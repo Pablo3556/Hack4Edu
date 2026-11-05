@@ -1,23 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <defs>
-    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2b8fae"/>
-      <stop offset="1" stop-color="#16506a"/>
-    </linearGradient>
-    <linearGradient id="barra" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffd27a"/>
-      <stop offset="1" stop-color="#f0975e"/>
-    </linearGradient>
-  </defs>
-  <!-- Base con la retícula de iconos de macOS (824 px y esquinas suaves) -->
-  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#fondo)"/>
-  <!-- Barras de crecimiento -->
-  <rect x="352" y="452" width="80" height="170" rx="20" fill="url(#barra)"/>
-  <rect x="472" y="372" width="80" height="250" rx="20" fill="url(#barra)"/>
-  <rect x="592" y="282" width="80" height="340" rx="20" fill="url(#barra)"/>
-  <!-- Punto de tendencia -->
-  <circle cx="632" cy="222" r="34" fill="#ffffff"/>
-  <!-- Libro abierto -->
-  <path d="M512 682 C 440 628 340 610 232 626 L 232 772 C 340 756 440 774 512 828 Z" fill="#ffffff"/>
-  <path d="M512 682 C 584 628 684 610 792 626 L 792 772 C 684 756 584 774 512 828 Z" fill="#e4f2f7"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024"><defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8E6C4C"/><stop offset=".55" stop-color="#6E4D30"/><stop offset="1" stop-color="#4A321D"/></linearGradient>
+  <linearGradient id="pageL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F3EFE9"/><stop offset="1" stop-color="#FAF9F5"/></linearGradient>
+  <linearGradient id="pageR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FAF9F5"/><stop offset="1" stop-color="#EDE6DB"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2DBA6"/><stop offset="1" stop-color="#C9A86A"/></linearGradient>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity=".28"/></filter>
+</defs><g transform="translate(24 24) scale(.953125)">
+  <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
+  <rect x="10" y="10" width="1004" height="1004" rx="220" fill="none" stroke="#C9A86A" stroke-opacity=".35" stroke-width="6"/>
+  <ellipse cx="512" cy="860" rx="360" ry="40" fill="#2E1F12" opacity=".35"/>
+  <!-- tapa -->
+  <path d="M176 492 L176 822 C320 798 440 806 512 856 C584 806 704 798 848 822 L848 492 C700 470 590 484 512 540 C434 484 324 470 176 492 Z" fill="#3A2715"/>
+  <!-- páginas -->
+  <path d="M512 520 C440 466 330 452 204 472 L204 790 C330 772 440 782 512 832 Z" fill="url(#pageL)"/>
+  <path d="M512 520 C584 466 694 452 820 472 L820 790 C694 772 584 782 512 832 Z" fill="url(#pageR)"/>
+  <path d="M512 520 L512 832" stroke="#B5A28E" stroke-width="6"/>
+  <g stroke="#C5B49E" stroke-width="14" stroke-linecap="round" fill="none">
+    <path d="M262 560 C330 548 400 552 456 574"/><path d="M262 620 C330 608 400 612 456 634"/><path d="M262 680 C330 668 400 672 456 694"/>
+    <path d="M568 574 C624 552 694 548 762 560"/><path d="M568 634 C624 612 694 608 762 620"/><path d="M568 694 C624 672 694 668 762 680"/>
+  </g>
+  <!-- datos que ascienden -->
+  <polyline points="300,452 424,364 548,400 742,232" fill="none" stroke="#E7CC93" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#FAF9F5" stroke="#E7CC93" stroke-width="16">
+    <circle cx="300" cy="452" r="30"/><circle cx="424" cy="364" r="30"/><circle cx="548" cy="400" r="30" fill="#FAC090"/>
+  </g>
+  <path d="M742.0,120.0 L770.2,193.2 L848.5,197.4 L787.7,246.8 L807.8,322.6 L742.0,280.0 L676.2,322.6 L696.3,246.8 L635.5,197.4 L713.8,193.2 Z" fill="url(#gold)" stroke="#FFF4DA" stroke-width="10" stroke-linejoin="round"/></g></svg>

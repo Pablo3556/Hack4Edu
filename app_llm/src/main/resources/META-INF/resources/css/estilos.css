@@ -1,43 +1,58 @@
-  /* Paleta derivada del icono (docs/icono/hack4edu.svg):
-     azul petróleo #2b8fae → #16506a, barras ámbar #ffd27a → #f0975e y blanco azulado #e4f2f7. */
+  /* Paleta Ad Astra (Paleta Ad Astra.md + Iconos_AdAstra/icono.svg):
+     marrón de los títulos, oro de los anillos de cifras, pergamino de fondo y melocotón de apoyo. */
   :root {
-    --marca-1: #2b8fae;
-    --marca-2: #16506a;
-    --oro-1: #ffd27a;
-    --oro-2: #f0975e;
-    --hoja: #e4f2f7;
-    --degradado-marca: linear-gradient(135deg, var(--marca-1), var(--marca-2));
-    --degradado-oro: linear-gradient(180deg, var(--oro-1), var(--oro-2));
+    /* Pergamino */
+    --pergamino-50: #FAF9F5; --pergamino-100: #F3EFE9; --pergamino-200: #EDE6DB;
+    /* Marrón · escala principal (600 = color de los títulos) */
+    --marron-300: #C5B49E; --marron-400: #B5A28E; --marron-500: #8E6C4C;
+    --marron-550: #87623B; --marron-600: #583C24; --marron-650: #6E4D30;
+    --marron-700: #4A321D; --marron-800: #3A2715; --marron-900: #2E1F12;
+    /* Oro · acentos */
+    --oro-50: #FFF4DA; --oro-100: #F2DBA6; --oro-200: #E7CC93; --oro-300: #C9A86A; --oro-700: #7A5B22;
+    /* Apoyo (con moderación) */
+    --melocoton: #FAC090;
 
-    --fondo: #f3f7f9;
-    --panel: #ffffff;
-    --texto: #142b36;
-    --suave: #557080;
-    --linea: #dbe6ec;
-    --acento: #1f6f8b;
-    --acento-suave: #e4f2f7;
-    --bien: #2e7d4f;
-    --mal: #b4442f;
-    --aviso: #9a5b10;
-    --aviso-fondo: #fff3d9;
-    --c1: #1f6f8b; --c2: #e8844a; --c3: #6b8f3a; --c4: #8a5ca8; --c5: #d9a23f;
+    --marca-1: var(--marron-500);
+    --marca-2: var(--marron-700);
+    --oro-1: var(--oro-100);
+    --oro-2: var(--oro-300);
+    --hoja: var(--pergamino-100);
+    --degradado-marca: linear-gradient(180deg, var(--marron-500), var(--marron-650) 55%, var(--marron-700));
+    --degradado-oro: linear-gradient(135deg, var(--oro-100), var(--oro-300));
+    --degradado-titulo: linear-gradient(90deg, var(--marron-600), var(--marron-550));
+
+    --fondo: var(--pergamino-50);
+    --panel: #FFFFFF;
+    --texto: var(--marron-900);
+    --titulo: var(--marron-600);
+    --suave: #6B5642;
+    --linea: #E6DCCD;
+    --acento: var(--marron-600);
+    --acento-suave: #F5EAD3;
+    --bien: #3F7A45;
+    --mal: #A8432E;
+    --aviso: var(--oro-700);
+    --aviso-fondo: #FBF0D6;
+    --c1: #87623B; --c2: #E0935A; --c3: #5E8B57; --c4: #9A6A8C; --c5: #C9A86A;
     --radio: 12px;
-    --sombra: 0 1px 2px rgba(22, 80, 106, .06), 0 4px 16px rgba(22, 80, 106, .06);
+    --sombra: 0 1px 2px rgba(74, 50, 29, .06), 0 4px 16px rgba(74, 50, 29, .07);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --fondo: #0e1c23;
-      --panel: #15272f;
-      --texto: #e6f0f4;
-      --suave: #93abb7;
-      --linea: #25404c;
-      --acento: #5fb3d1;
-      --acento-suave: #173947;
-      --bien: #6cc58f;
-      --mal: #ef8a74;
-      --aviso: #ffd27a;
-      --aviso-fondo: #33291a;
-      --c1: #5fb3d1; --c2: #f0975e; --c3: #9cc164; --c4: #b78fd4; --c5: #ffd27a;
+      --degradado-titulo: linear-gradient(90deg, var(--oro-100), var(--oro-300));
+      --fondo: #1D140C;
+      --panel: #281C12;
+      --texto: var(--pergamino-100);
+      --titulo: var(--oro-200);
+      --suave: #BBA88F;
+      --linea: #3F2F21;
+      --acento: var(--oro-200);
+      --acento-suave: #3A2B1B;
+      --bien: #9CC48A;
+      --mal: #EF8F78;
+      --aviso: var(--oro-100);
+      --aviso-fondo: #362915;
+      --c1: #E7CC93; --c2: #FAC090; --c3: #9CC48A; --c4: #CFA2C4; --c5: #C9A86A;
       --sombra: none;
     }
   }
@@ -53,8 +68,13 @@
     max-width: 1200px;
     margin: 0 auto;
   }
-  h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -.01em; }
+  h1, h2, h3 { color: var(--titulo); }
+  h1 {
+    font: 650 28px/1.2 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; margin: 0 0 4px; letter-spacing: -.01em;
+    background: var(--degradado-titulo); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
   h2 { font-size: 17px; margin: 0 0 4px; }
+  .marca-app { display: block; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--aviso); margin-bottom: 2px; }
   .sub { color: var(--suave); margin: 0; }
   .etiqueta {
     display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 999px;
@@ -205,7 +225,7 @@
   .login { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
   .login-tarjeta {
     width: 100%; background: var(--panel); border: 1px solid var(--linea); border-radius: 18px; padding: 36px 30px 30px;
-    box-shadow: 0 2px 4px rgba(20, 25, 40, .04), 0 18px 48px rgba(20, 25, 40, .12);
+    box-shadow: 0 2px 4px rgba(74, 50, 29, .05), 0 18px 48px rgba(74, 50, 29, .14);
     animation: login-entrada .4s ease-out;
   }
   .login-marca { text-align: center; margin-bottom: 26px; }
@@ -242,9 +262,12 @@
   .solo-consulta .solo-escritura { display: none; }
 
   /* Toques de marca */
-  .kpi { border-top: 3px solid var(--marca-1); }
+  .kpi { border-top: 3px solid var(--oro-2); }
+  .kpi .valor { color: var(--titulo); }
+  .boton.secundario:hover, .sugerencias button:hover { background: var(--acento-suave); }
   .etiqueta { border: 1px solid color-mix(in srgb, var(--oro-2) 35%, transparent); }
   .login-tarjeta { background: linear-gradient(90deg, var(--oro-1), var(--oro-2)) top / 100% 5px no-repeat, var(--panel); }
   @media (prefers-color-scheme: dark) {
-    .boton { border-color: var(--marca-1); }
+    .boton { border-color: var(--oro-2); }
+    .roles button[aria-pressed="true"], .boton:not(.secundario):not(.peligro) { background: var(--degradado-oro); color: var(--marron-900); }
   }
